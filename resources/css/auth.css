@@ -1,0 +1,247 @@
+:root {
+    --kfa-orange: #F26522;
+    --kfa-orange-hover: #d8541a;
+    --kfa-navy: #002B5B;
+}
+
+/* THEME 1: CABANG */
+body.theme-cabang {
+    --theme-primary: #002B5B;
+    --theme-primary-dark: #001A3A;
+    --theme-primary-light: #e6f0fa;
+    --theme-accent: #F26522;
+    --theme-bg-gradient: linear-gradient(135deg, rgba(0, 43, 91, 0.78) 0%, rgba(0, 25, 55, 0.85) 100%);
+    --theme-header-bg: linear-gradient(135deg, #002B5B 0%, #001835 100%);
+    --theme-glow: rgba(242, 101, 34, 0.3);
+    --theme-btn-bg: linear-gradient(135deg, #F26522 0%, #d8541a 100%);
+    --theme-btn-hover: linear-gradient(135deg, #d8541a 0%, #c2410c 100%);
+    --theme-btn-text: #ffffff;
+    --theme-border: rgba(242, 101, 34, 0.35);
+}
+
+/* THEME 2: ADMIN PUSAT */
+body.theme-admin {
+    --theme-primary: #0F172A;
+    --theme-primary-dark: #090D16;
+    --theme-primary-light: #f1f5f9;
+    --theme-accent: #F59E0B;
+    --theme-bg-gradient: linear-gradient(135deg, rgba(0, 43, 91, 0.78) 0%, rgba(0, 25, 55, 0.85) 100%);
+    --theme-header-bg: linear-gradient(135deg, #090D16 0%, #1E293B 50%, #334155 100%);
+    --theme-glow: rgba(245, 158, 11, 0.35);
+    --theme-btn-bg: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+    --theme-btn-hover: linear-gradient(135deg, #F59E0B 0%, #d97706 100%);
+    --theme-btn-text: #F59E0B;
+    --theme-border: rgba(245, 158, 11, 0.4);
+}
+
+body.auth-page {
+    background: var(--theme-bg-gradient), url('/bg-login.jpg') no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 15px;
+    transition: background 0.5s ease;
+}
+
+/* Card Setup */
+.login-card {
+    border: 1px solid var(--theme-border);
+    border-radius: 20px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 30px var(--theme-glow);
+    overflow: hidden;
+    width: 100%;
+    max-width: 380px;
+    background: var(--theme-header-bg);
+    backdrop-filter: blur(20px);
+    animation: floatUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    position: relative;
+}
+
+@keyframes floatUp {
+    from { opacity: 0; transform: translateY(25px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Header Setup */
+.login-header {
+    background: white;
+    color: var(--theme-primary);
+    padding: 20px 20px 10px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 4px solid var(--theme-accent);
+}
+
+/* Ambient glow circles inside header */
+.login-header::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(0,0,0,0.03) 0%, transparent 70%);
+    border-radius: 50%;
+}
+.login-header::after {
+    content: '';
+    position: absolute;
+    bottom: -50px;
+    left: -50px;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, var(--theme-accent) 0%, transparent 70%);
+    opacity: 0.1;
+    border-radius: 50%;
+}
+
+.header-icon-circle {
+    width: 68px;
+    height: 68px;
+    margin: 0 auto 15px auto;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    animation: pulseGlow 3s infinite ease-in-out;
+}
+
+@keyframes pulseGlow {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.kfa-brand-italic {
+    color: var(--kfa-orange);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-style: italic;
+    font-size: 1.75rem;
+    letter-spacing: -0.5px;
+}
+
+.kfa-brand-normal {
+    color: white;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    margin-left: 6px;
+    font-size: 1.75rem;
+    letter-spacing: -0.5px;
+}
+
+.header-subtitle {
+    color: #475569;
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1.4;
+    display: block;
+    position: relative;
+    z-index: 2;
+    margin-top: 10px;
+}
+
+/* Body Setup */
+.login-body {
+    padding: 20px 25px 20px 25px;
+    background-color: transparent;
+}
+
+.form-label {
+    font-size: 0.85rem;
+    color: white;
+    margin-bottom: 6px;
+}
+
+.input-group {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+    transition: all 0.3s ease;
+    border: 1px solid #cbd5e1;
+}
+
+.input-group:focus-within {
+    border-color: var(--theme-accent);
+    box-shadow: 0 0 0 3px var(--theme-glow);
+}
+
+.input-group-text {
+    background-color: #f8fafc;
+    border: none;
+    color: #64748b;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+}
+
+.form-control {
+    border: none;
+    padding: 10px 12px 10px 0;
+    font-size: 0.9rem;
+    color: #1e293b;
+    background-color: #f8fafc;
+}
+
+.form-control:focus {
+    background-color: #ffffff;
+    box-shadow: none;
+}
+
+.input-group:focus-within .input-group-text,
+.input-group:focus-within .form-control {
+    background-color: #ffffff;
+    color: var(--theme-primary);
+}
+
+.form-check-input:checked {
+    background-color: var(--theme-accent);
+    border-color: var(--theme-accent);
+}
+
+/* Button Theme */
+.btn-theme {
+    background: var(--theme-btn-bg);
+    color: var(--theme-btn-text);
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    width: 100%;
+    border: none;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-theme:hover {
+    background: var(--theme-btn-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px var(--theme-glow);
+}
+
+body.theme-admin .btn-theme:hover {
+    color: #0F172A !important;
+}
+
+.btn-theme:active {
+    transform: translateY(0);
+}
+
+.btn-theme .btn-icon {
+    transition: transform 0.3s ease;
+}
+
+.btn-theme:hover .btn-icon {
+    transform: translateX(4px);
+}
