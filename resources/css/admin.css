@@ -813,3 +813,43 @@ body.admin-layout {
 
 
 .legend-item-hover { transition: all 0.2s ease-in-out; } .legend-item-hover:hover { transform: scale(1.05) translateX(2px); background-color: #F1F5F9; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+/* RESPONSIVE UI ADDITIONS */
+@media (max-width: 768px) {
+    .sidebar-hq {
+        transform: translateX(-100%);
+        position: fixed;
+        z-index: 1040;
+        transition: transform 0.3s ease;
+        height: 100vh;
+    }
+    .sidebar-hq.mobile-open {
+        transform: translateX(0);
+    }
+    .main-container, .main-content-wrapper {
+        width: 100% !important;
+        margin-left: 0 !important;
+        padding: 10px !important;
+    }
+    .admin-app-container {
+        flex-direction: column;
+    }
+    /* Tables scrolling */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .table-responsive table {
+        min-width: 800px;
+    }
+    /* Header fixes */
+    .page-header-hq .d-flex {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+    }
+    /* Action buttons in cards */
+    .card-header .btn {
+        width: 100%;
+        margin-top: 10px;
+    }
+}

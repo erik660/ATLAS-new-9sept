@@ -245,3 +245,17 @@ body.theme-admin .btn-theme:hover {
 .btn-theme:hover .btn-icon {
     transform: translateX(4px);
 }
+/* RESPONSIVE ADDITIONS FOR AUTH */
+@media (max-width: 576px) {
+    .auth-card {
+        width: 100% !important;
+        margin: 10px !important;
+        padding: 20px !important;
+    }
+    .auth-bg {
+        padding: 10px;
+    }
+    .welcome-text {
+        font-size: 1.5rem !important;
+    }
+}
