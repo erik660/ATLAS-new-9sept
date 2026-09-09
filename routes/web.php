@@ -34,30 +34,8 @@ Route::prefix('admin')->group(function () {
     Route::middleware(['admin'])->group(function () {
         Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
         Route::get('/verifikasi', [AdminController::class, 'verifikasi'])->name('admin.verifikasi');
-        Route::get('/laporan/cetak', [AdminController::class, 'printLaporan'])->name('admin.laporan.cetak');
         Route::get('/laporan/csv', [AdminController::class, 'downloadCsv'])->name('admin.laporan.csv');
         Route::get('/expired', [AdminController::class, 'expired'])->name('admin.expired');
-        Route::get('/log', [AdminController::class, 'activityLog'])->name('admin.activity_log');
-        Route::get('/verify/{id}', [AdminController::class, 'show'])->name('admin.perizinan.verify');
-        Route::get('/verify/{id}/download-all', [AdminController::class, 'downloadAll'])->name('admin.perizinan.download_all');
-        Route::post('/update/{id}', [AdminController::class, 'updateStatus'])->name('admin.perizinan.update');
-        Route::post('/update-nku/{id}', [AdminController::class, 'updateNku'])->name('admin.perizinan.update_nku');
-        Route::post('/completed/{id}', [AdminController::class, 'markCompleted'])->name('admin.perizinan.completed');
-
-        Route::post('/verify/{id}/remind-document', [AdminController::class, 'remindDocument'])->name('admin.perizinan.remind_document');
-        Route::post('/reminder/{id}', [AdminController::class, 'sendReminder'])->name('admin.perizinan.reminder');
-
-        Route::get('/bank-data', [AdminController::class, 'bankData'])->name('admin.bank_data');
-        Route::get('/bank-data/{id}/catatan', [AdminController::class, 'bankDataCatatan'])->name('admin.bank_data.catatan');
-        Route::post('/bank-data/{id}/catatan/store', [AdminController::class, 'bankDataCatatanStore'])->name('admin.bank_data.catatan.store');
-        Route::delete('/bank-data/catatan/{id}', [AdminController::class, 'bankDataCatatanDelete'])->name('admin.bank_data.catatan.delete');
-        Route::get('/bank-data/{id}/create', [AdminController::class, 'bankDataCreate'])->name('admin.bank_data.create');
-        Route::post('/bank-data/{id}/store', [AdminController::class, 'bankDataStore'])->name('admin.bank_data.store');
-        Route::delete('/bank-data/arsip-admin/{id}', [AdminController::class, 'bankDataDeleteDoc'])->name('admin.bank_data.delete_doc');
-        Route::get('/bank-data/arsip/{id}', [AdminController::class, 'bankDataArsip'])->name('admin.bank_data.arsip');
-        Route::post('/bank-data/arsip/{id}/update', [AdminController::class, 'bankDataArsipUpdate'])->name('admin.bank_data.arsip.update');
-        Route::post('/bank-data/arsip/{id}/upload-doc', [AdminController::class, 'bankDataUploadDoc'])->name('admin.bank_data.arsip.upload_doc');
-        Route::get('/bank-data/{id}', [AdminController::class, 'bankDataDetail'])->name('admin.bank_data.detail');
     });
 });
 
