@@ -148,7 +148,7 @@ class CabangController extends Controller
         if ($request->has('submit_bap') || (strtolower($perizinan->status) === 'approved' && empty($perizinan->file_16))) {
             if ($request->hasFile('file_16')) {
                 $request->validate(['file_16' => 'file|mimes:pdf|max:5120']);
-                $updateData = ['file_16' => $request->file('file_16')->store('berkas')];
+                $user = \Illuminate\Support\Facades\Auth::user(); $cabang = str_replace(["/", "\\", " "], "_", $user->name); $unit = str_replace(["/", "\\", " "], "_", $perizinan->unit_bisnis ?? "Umum"); $timestamp = now()->format("Ymd_His"); $originalName = str_replace(["/", "\\", " "], "_", $request->file("file_16")->getClientOriginalName()); $dir = "Cabang/{$cabang}/{$unit}"; $filename = "{$timestamp}_{$originalName}"; $updateData = ["file_16" => $request->file("file_16")->storeAs($dir, $filename)];
                 if ($perizinan->file_16) {
                     $oldFiles = $perizinan->old_files ? json_decode($perizinan->old_files, true) : [];
                     $oldFiles['file_16'] = $perizinan->file_16;
@@ -416,7 +416,7 @@ class CabangController extends Controller
                     $hasOldFilesUpdate = true;
                 }
 
-                $saved[$field] = $request->file($field)->store('berkas');
+                $user = \Illuminate\Support\Facades\Auth::user(); $cabang = str_replace(["/", "\\", " "], "_", $user->name); $unit = str_replace(["/", "\\", " "], "_", $perizinan->unit_bisnis ?? "Umum"); $timestamp = now()->format("Ymd_His"); $originalName = str_replace(["/", "\\", " "], "_", $request->file($field)->getClientOriginalName()); $dir = "Cabang/{$cabang}/{$unit}"; $filename = "{$timestamp}_{$originalName}"; $saved[$field] = $request->file($field)->storeAs($dir, $filename);
             }
         }
         

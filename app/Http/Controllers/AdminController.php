@@ -930,7 +930,7 @@ class AdminController extends Controller
 
         $filePath = null;
         if ($request->hasFile('file_dokumen')) {
-            $filePath = $request->file('file_dokumen')->store('berkas', 's3');
+            $cabang = str_replace(["/", "\\", " "], "_", $branch->name); $unit = str_replace(["/", "\\", " "], "_", $branch->unit_bisnis ?? "Umum"); $timestamp = now()->format("Ymd_His"); $originalName = str_replace(["/", "\\", " "], "_", $request->file("file_dokumen")->getClientOriginalName()); $dir = "Admin/{$cabang}/{$unit}"; $filename = "{$timestamp}_{$originalName}"; $filePath = $request->file("file_dokumen")->storeAs($dir, $filename, "s3");
         }
 
         $perizinan = Perizinan::create([
@@ -992,7 +992,7 @@ class AdminController extends Controller
 
         $filePath = null;
         if ($request->hasFile('file_dokumen')) {
-            $filePath = $request->file('file_dokumen')->store('berkas', 's3');
+            $cabang = str_replace(["/", "\\", " "], "_", $branch->name); $unit = str_replace(["/", "\\", " "], "_", $branch->unit_bisnis ?? "Umum"); $timestamp = now()->format("Ymd_His"); $originalName = str_replace(["/", "\\", " "], "_", $request->file("file_dokumen")->getClientOriginalName()); $dir = "Admin/{$cabang}/{$unit}"; $filename = "{$timestamp}_{$originalName}"; $filePath = $request->file("file_dokumen")->storeAs($dir, $filename, "s3");
         }
 
         $perizinan = Perizinan::create([
@@ -1140,7 +1140,7 @@ class AdminController extends Controller
             'document' => 'required|file|mimes:pdf,jpg,jpeg,png,webp,zip|max:10240',
         ]);
 
-        $path = $request->file('document')->store('berkas', 's3');
+        $cabang = str_replace(["/", "\\", " "], "_", $perizinan->user->name); $unit = str_replace(["/", "\\", " "], "_", $perizinan->unit_bisnis ?? "Umum"); $timestamp = now()->format("Ymd_His"); $originalName = str_replace(["/", "\\", " "], "_", $request->file("document")->getClientOriginalName()); $dir = "Admin/{$cabang}/{$unit}"; $filename = "{$timestamp}_{$originalName}"; $path = $request->file("document")->storeAs($dir, $filename, "s3");
         $perizinan->$field = $path;
         $perizinan->save();
 

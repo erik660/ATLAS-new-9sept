@@ -198,7 +198,7 @@ class PerizinanController extends Controller
                     Storage::delete($perizinan->$field);
                 }
 
-                $saved[$field] = $request->file($field)->store('dokumen_perizinan');
+                $user = \Illuminate\Support\Facades\Auth::user(); $cabang = str_replace(["/", "\\", " "], "_", $user->name); $unit = str_replace(["/", "\\", " "], "_", $user->unit_bisnis ?? "Umum"); $timestamp = now()->format("Ymd_His"); $originalName = str_replace(["/", "\\", " "], "_", $request->file($field)->getClientOriginalName()); $dir = "Cabang/{$cabang}/{$unit}"; $filename = "{$timestamp}_{$originalName}"; $saved[$field] = $request->file($field)->storeAs($dir, $filename);
             }
         }
 
@@ -238,3 +238,4 @@ class PerizinanController extends Controller
         }
     }
 }
+
