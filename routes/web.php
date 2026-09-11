@@ -102,3 +102,10 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/perizinan/{id}', [PerizinanController::class, 'destroy'])->name('perizinan.destroy');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
+// MinIO Storage Interceptor
+Route::get('/storage/{path}', function ($path) {
+    if (env('FILESYSTEM_DISK') === 's3') {
+        return redirect(\Illuminate\Support\Facades\Storage::disk('s3')->url($path));
+    }
+    return response()->file(storage_path('app/public/' . $path));
+})->where('path', '.*');

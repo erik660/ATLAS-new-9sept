@@ -930,7 +930,7 @@ class AdminController extends Controller
 
         $filePath = null;
         if ($request->hasFile('file_dokumen')) {
-            $filePath = $request->file('file_dokumen')->store('berkas', 'public');
+            $filePath = $request->file('file_dokumen')->store('berkas', 's3');
         }
 
         $perizinan = Perizinan::create([
@@ -965,8 +965,8 @@ class AdminController extends Controller
         $doc = Perizinan::where('status', 'arsip_admin')->findOrFail($id);
         $branchId = $doc->user_id;
 
-        if ($doc->file_1 && \Illuminate\Support\Facades\Storage::disk('public')->exists($doc->file_1)) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($doc->file_1);
+        if ($doc->file_1 && \Illuminate\Support\Facades\Storage::disk('s3')->exists($doc->file_1)) {
+            \Illuminate\Support\Facades\Storage::disk('s3')->delete($doc->file_1);
         }
 
         $doc->delete();
@@ -992,7 +992,7 @@ class AdminController extends Controller
 
         $filePath = null;
         if ($request->hasFile('file_dokumen')) {
-            $filePath = $request->file('file_dokumen')->store('berkas', 'public');
+            $filePath = $request->file('file_dokumen')->store('berkas', 's3');
         }
 
         $perizinan = Perizinan::create([
@@ -1027,8 +1027,8 @@ class AdminController extends Controller
         $doc = Perizinan::where('status', 'arsip_admin')->findOrFail($id);
         $branchId = $doc->user_id;
 
-        if ($doc->file_1 && \Illuminate\Support\Facades\Storage::disk('public')->exists($doc->file_1)) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($doc->file_1);
+        if ($doc->file_1 && \Illuminate\Support\Facades\Storage::disk('s3')->exists($doc->file_1)) {
+            \Illuminate\Support\Facades\Storage::disk('s3')->delete($doc->file_1);
         }
 
         $doc->delete();
@@ -1140,7 +1140,7 @@ class AdminController extends Controller
             'document' => 'required|file|mimes:pdf,jpg,jpeg,png,webp,zip|max:10240',
         ]);
 
-        $path = $request->file('document')->store('berkas', 'public');
+        $path = $request->file('document')->store('berkas', 's3');
         $perizinan->$field = $path;
         $perizinan->save();
 
@@ -1216,3 +1216,4 @@ class AdminController extends Controller
         ]);
     }
 }
+
