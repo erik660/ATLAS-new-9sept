@@ -198,7 +198,7 @@ class PerizinanController extends Controller
                     Storage::delete($perizinan->$field);
                 }
 
-                $user = \Illuminate\Support\Facades\Auth::user(); $cabang = str_replace(["/", "\\", " "], "_", $user->name); $unit = str_replace(["/", "\\", " "], "_", $user->unit_bisnis ?? "Umum"); $timestamp = now()->format("Ymd_His"); $originalName = str_replace(["/", "\\", " "], "_", $request->file($field)->getClientOriginalName()); $dir = "Cabang/{$cabang}/{$unit}"; $filename = "{$timestamp}_{$originalName}"; $saved[$field] = $request->file($field)->storeAs($dir, $filename);
+                $user = \Illuminate\Support\Facades\Auth::user(); $cabang = str_replace(["/", "\\", " "], "_", $user->name); $unit = str_replace(["/", "\\", " "], "_", $user->unit_bisnis ?? "Umum"); $timestamp = now()->format("Ymd_His"); $originalName = str_replace(["/", "\\", " "], "_", $request->file($field)->getClientOriginalName()); $jenis = str_replace(["/", "\\", " "], "_", $request->input("jenis_perizinan", $perizinan->jenis_perizinan ?? "Arsip")); $dir = "Cabang/{$unit}/{$cabang}/{$jenis}"; $filename = "{$timestamp}_{$field}_{$originalName}"; $saved[$field] = $request->file($field)->storeAs($dir, $filename, 's3');
             }
         }
 

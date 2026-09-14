@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Head, Link, usePage, router, useForm } from '@inertiajs/react';
 import CabangLayout from '../../Layouts/CabangLayout';
+import DragDropInput from '../../Components/DragDropInput';
 import Swal from 'sweetalert2';
 
 export default function Create() {
@@ -76,7 +77,7 @@ export default function Create() {
                 'file_6', 'file_7', 'file_8', 'file_9', 'file_10',
                 'file_11', 'file_12', 'file_13', 'file_14', 'file_15'
             ];
-            
+
             let hasMissingFields = false;
             let firstMissingElement = null;
 
@@ -93,18 +94,18 @@ export default function Create() {
                     }
                 }
             });
-            
+
             for (let i = 0; i < allRequiredFields.length; i++) {
                 const field = allRequiredFields[i];
                 if (data[field] === '' || data[field] === null || data[field] === undefined) {
                     hasMissingFields = true;
                     const element = document.getElementById(field);
-                    
+
                     if (element) {
                         if (!firstMissingElement) {
                             firstMissingElement = element;
                         }
-                        
+
                         if (field.startsWith('file_')) {
                             element.parentElement.style.setProperty('border', '2px solid #dc3545', 'important');
                             element.parentElement.style.setProperty('background-color', '#fff8f8', 'important');
@@ -139,7 +140,7 @@ export default function Create() {
                 if (document.activeElement) {
                     document.activeElement.blur();
                 }
-                
+
                 if (firstMissingElement) {
                     firstMissingElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
@@ -150,7 +151,7 @@ export default function Create() {
                     icon: 'warning',
                     confirmButtonColor: '#F26522'
                 });
-                
+
                 return;
             }
         }
@@ -187,7 +188,6 @@ export default function Create() {
             }
         });
     };
-
     return (
         <CabangLayout title="Buat Pengajuan Baru - KFA" pageTitle="Formulir Pengajuan Perizinan Apotek" onBackClick={handleBackClick}>
             <style>{`
@@ -206,12 +206,12 @@ export default function Create() {
                 .file-drop-box.has-file::before { background-color: #10B981; }
                 .file-drop-box input[type="file"] { font-size: 0.88rem; }
                 .input-group-text-custom { background-color: #f1f3f5; border-color: #ced4da; color: #495057; font-weight: 600; }
-                .btn-submit-gform { background: linear-gradient(135deg, #F26522, #d8541a); color: white; font-weight: 700; font-size: 1.1rem; padding: 14px 32px; border-radius: 50px; border: none; box-shadow: 0 4px 15px rgba(242, 101, 34, 0.3); transition: all 0.3s; }
+                .btn-submit-gform { background: linear-gradient(135deg, #F26522, #d8541a); color: white; font-weight: 700; font-size: 1rem; padding: 10px 24px; border-radius: 50px; border: none; box-shadow: 0 4px 15px rgba(242, 101, 34, 0.3); transition: all 0.3s; }
                 .btn-submit-gform:hover { background: linear-gradient(135deg, #d8541a, #bf4512); color: white; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(242, 101, 34, 0.4); }
-                .btn-draft-gform { background-color: #ffffff; color: #495057; font-weight: 600; font-size: 1rem; padding: 14px 28px; border-radius: 50px; border: 2px solid #dee2e6; transition: all 0.3s; }
+                .btn-draft-gform { background-color: #ffffff; color: #495057; font-weight: 600; font-size: 1rem; padding: 10px 24px; border-radius: 50px; border: 2px solid #dee2e6; transition: all 0.3s; }
                 .btn-draft-gform:hover { background-color: #f8f9fa; border-color: #adb5bd; color: #212529; }
                 input::placeholder, textarea::placeholder, .form-control::placeholder { font-style: italic !important; color: #94a3b8 !important; opacity: 0.75 !important; font-weight: 400 !important; }
-                @media (max-width: 576px) { .gform-card-header { padding: 18px 16px 14px 16px; } .gform-body { padding: 16px; } .gform-section-title { font-size: 1.1rem; } .btn-submit-gform, .btn-draft-gform { width: 100%; margin-bottom: 10px; } }
+                @media (max-width: 576px) { .gform-card-header { padding: 18px 16px 14px 16px; } .gform-body { padding: 16px; } .gform-section-title { font-size: 1rem; } .btn-submit-gform, .btn-draft-gform { width: 100%; margin-bottom: 10px; } }
             `}</style>
 
             <div className="row justify-content-center">
@@ -233,19 +233,23 @@ export default function Create() {
                             <div className="gform-body bg-light bg-opacity-50">
                                 <div className="row gx-3 gy-2">
                                     <div className="col-md-6 d-flex flex-column">
-                                        <label className="form-label-custom">Jenis Perizinan Yang Diajukan <span className="text-danger">*</span></label>
-                                        <select className="form-select form-select-lg border-secondary shadow-sm" id="jenis_perizinan" value={data.jenis_perizinan} onChange={e => setData('jenis_perizinan', e.target.value)} required style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--kfa-navy)' }}>
-                                            <option value="">-- Klik untuk Memilih --</option>
-                                            <option value="Perubahan APJ">Perubahan APJ</option>
-                                            <option value="Perpanjangan & Perubahan APJ">Perpanjangan dan Perubahan APJ</option>
-                                            <option value="Perpanjangan SIA (Belum OSS)">Perpanjangan SIA (SIA Lama Belum OSS)</option>
-                                            <option value="Perpanjangan SIA (Sudah OSS)">Perpanjangan SIA (SIA Lama Sudah OSS)</option>
-                                        </select>
-                                        {errors.jenis_perizinan && <div className="text-danger small mt-1">{errors.jenis_perizinan}</div>}
+                                        <div className="mt-auto">
+                                            <label className="form-label-custom">Jenis Perizinan Yang Diajukan <span className="text-danger">*</span></label>
+                                            <select className="form-select form-select-lg border-secondary shadow-sm" id="jenis_perizinan" value={data.jenis_perizinan} onChange={e => setData('jenis_perizinan', e.target.value)} required style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--kfa-navy)' }}>
+                                                <option value="">-- Klik untuk Memilih --</option>
+                                                <option value="Perubahan APJ">Perubahan APJ</option>
+                                                <option value="Perpanjangan & Perubahan APJ">Perpanjangan dan Perubahan APJ</option>
+                                                <option value="Perpanjangan SIA (Belum OSS)">Perpanjangan SIA (SIA Lama Belum OSS)</option>
+                                                <option value="Perpanjangan SIA (Sudah OSS)">Perpanjangan SIA (SIA Lama Sudah OSS)</option>
+                                            </select>
+                                            {errors.jenis_perizinan && <div className="text-danger small mt-1">{errors.jenis_perizinan}</div>}
+                                        </div>
                                     </div>
                                     <div className="col-md-6 d-flex flex-column">
-                                        <label className="form-label-custom">Nama Cabang / Unit Bisnis <small className="text-muted fw-normal">(Terisi otomatis)</small></label>
-                                        <input type="text" className="form-control bg-white border-0 shadow-sm text-secondary fw-bold mt-auto" value={data.nama_apotek} readOnly style={{ fontSize: '0.95rem' }} />
+                                        <div className="mt-auto">
+                                            <label className="form-label-custom">Nama Cabang / Unit Bisnis <small className="text-muted fw-normal">(Terisi otomatis)</small></label>
+                                            <input type="text" className="form-control bg-white border-0 shadow-sm text-secondary fw-bold" value={data.nama_apotek} readOnly style={{ fontSize: '0.95rem' }} />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -267,16 +271,10 @@ export default function Create() {
                                         { id: 'file_5', label: 'Izin Lokasi yang Diterbitkan OSS', accept: '.pdf' },
                                         { id: 'file_12', label: 'Sertifikat Tanah dan IMB', accept: '.pdf' }
                                     ].map(field => (
-                                        <div className="col-md-6" key={field.id}>
-                                            <label className="form-label-custom text-dark mb-1">
-                                                <i className="fas fa-paperclip text-secondary me-2"></i> {field.label} <span className="text-danger">*</span>
-                                            </label>
-                                            <div>
-                                                <div className={`file-drop-box ${data[field.id] ? 'has-file' : ''}`}>
-                                                    <input type="file" className="form-control bg-white shadow-sm mb-2" id={field.id} onChange={e => handleFileChange(e, field.id)} accept={field.accept} />
-                                                    <small className="text-muted d-block mt-1">Format: Khusus PDF (.pdf) - Maks. 5 MB</small>
-                                                </div>
-                                                {errors[field.id] && <div className="text-danger small mt-1">{errors[field.id]}</div>}
+                                        <div className="col-md-4 d-flex flex-column" key={field.id}>
+                                            <div className="mt-auto">
+                                                <label className="form-label-custom text-dark mb-1" style={{ fontSize: "0.85rem" }}><i className="fas fa-paperclip text-secondary me-2"></i> {field.label}&nbsp;<span className="text-danger">*</span></label>
+                                                <DragDropInput id={field.id} accept={field.accept} onChange={e => handleFileChange(e, field.id)} fileData={data[field.id]} formatText="Format: Khusus PDF (.pdf) - Maks. 5 MB" error={errors[field.id]} />
                                             </div>
                                         </div>
                                     ))}
@@ -290,68 +288,69 @@ export default function Create() {
                                 <h4 className="gform-section-title">Bagian 2: Alamat, Geografis Lahan & Tata Ruang</h4>
                             </div>
                             <div className="gform-body">
-                                <div className="row gx-3 gy-2">
+                                <div className="row gx-3 gy-2 mb-3">
                                     <div className="col-md-6 d-flex flex-column">
-                                        <label className="form-label-custom">Nama Rencana Usaha / Kegiatan</label>
-                                        <input type="text" className="form-control border-secondary-subtle bg-light mt-auto" id="nama_rencana_usaha" value={data.nama_rencana_usaha} onChange={e => setData('nama_rencana_usaha', e.target.value)} placeholder="Masukkan nama rencana usaha di sini..." />
+                                        <div className="mt-auto">
+                                            <label className="form-label-custom">Nama Rencana Usaha / Kegiatan</label>
+                                            <input type="text" className="form-control border-secondary-subtle bg-light" id="nama_rencana_usaha" value={data.nama_rencana_usaha} onChange={e => setData('nama_rencana_usaha', e.target.value)} placeholder="Masukkan nama rencana usaha di sini..." />
+                                        </div>
                                         {errors.nama_rencana_usaha && <div className="text-danger small mt-1">{errors.nama_rencana_usaha}</div>}
                                     </div>
-                                    <div className="col-md-3 d-flex flex-column">
-                                        <label className="form-label-custom">Kode Pos</label>
-                                        <input type="text" className="form-control border-secondary-subtle mt-auto" id="kode_pos" value={data.kode_pos} onChange={e => setData('kode_pos', e.target.value.replace(/\D/g, ''))} placeholder="Masukkan kode pos..." />
+                                    <div className="col-md-4 d-flex flex-column">
+                                        <div className="mt-auto">
+                                            <label className="form-label-custom">Kode Pos</label>
+                                            <input type="text" className="form-control border-secondary-subtle" id="kode_pos" value={data.kode_pos} onChange={e => setData('kode_pos', e.target.value.replace(/\D/g, ''))} placeholder="Masukkan kode pos..." />
+                                        </div>
                                         {errors.kode_pos && <div className="text-danger small mt-1">{errors.kode_pos}</div>}
                                     </div>
-                                    <div className="col-md-3 d-flex flex-column">
+                                    <div className="col-md-4 d-flex flex-column">
                                         <label className="form-label-custom">Luas Lahan</label>
-                                        <div className="input-group mt-auto">
-                                            <input type="text" className="form-control border-secondary-subtle mt-auto" id="luas_lahan" value={data.luas_lahan} onChange={e => setData('luas_lahan', e.target.value.replace(/\D/g, ''))} placeholder="Masukkan luas lahan..." />
-                                            <span className="input-group-text input-group-text-custom">m²</span>
+                                        <div className="input-group">
+                                            <input type="text" className="form-control border-secondary-subtle" id="luas_lahan" value={data.luas_lahan} onChange={e => setData('luas_lahan', e.target.value.replace(/\D/g, ''))} placeholder="Masukkan luas lahan..." />
+                                            <span className="input-group-text input-group-text-custom">m</span>
                                         </div>
                                         {errors.luas_lahan && <div className="text-danger small mt-1">{errors.luas_lahan}</div>}
                                     </div>
+                                </div>
 
-                                    <div className="col-md-6 d-flex flex-column">
+                                <div className="row gx-3 gy-2 mb-3">
+                                    <div className="col-md-3 d-flex flex-column">
                                         <label className="form-label-custom">Alamat Lengkap Apotek</label>
-                                        <textarea style={{ resize: "none" }} className="form-control border-secondary-subtle bg-light mt-auto" rows="2" id="alamat_lengkap" value={data.alamat_lengkap} onChange={e => setData('alamat_lengkap', e.target.value)} placeholder="Masukkan alamat lengkap apotek di sini..."></textarea>
+                                        <textarea style={{ resize: "none" }} className="form-control border-secondary-subtle bg-light" rows="3" id="alamat_lengkap" value={data.alamat_lengkap} onChange={e => setData('alamat_lengkap', e.target.value)} placeholder="Masukkan alamat lengkap apotek di sini..."></textarea>
                                         {errors.alamat_lengkap && <div className="text-danger small mt-1">{errors.alamat_lengkap}</div>}
                                     </div>
-                                    <div className="col-md-6 d-flex flex-column">
+                                    <div className="col-md-3 d-flex flex-column">
                                         <label className="form-label-custom">Rincian Alamat Lokasi Kegiatan</label>
-                                        <textarea style={{ resize: "none" }} className="form-control border-secondary-subtle bg-light mt-auto" rows="2" id="lokasi_alamat_lengkap" value={data.lokasi_alamat_lengkap} onChange={e => setData('lokasi_alamat_lengkap', e.target.value)} placeholder="Masukkan rincian alamat lokasi di sini..."></textarea>
+                                        <textarea style={{ resize: "none" }} className="form-control border-secondary-subtle bg-light" rows="3" id="lokasi_alamat_lengkap" value={data.lokasi_alamat_lengkap} onChange={e => setData('lokasi_alamat_lengkap', e.target.value)} placeholder="Masukkan rincian alamat lokasi di sini..."></textarea>
                                         {errors.lokasi_alamat_lengkap && <div className="text-danger small mt-1">{errors.lokasi_alamat_lengkap}</div>}
                                     </div>
-
-                                    <div className="col-md-6 d-flex flex-column">
+                                    <div className="col-md-3 d-flex flex-column">
                                         <label className="form-label-custom">Deskripsi Kegiatan Usaha</label>
-                                        <textarea style={{ resize: "none" }} className="form-control border-secondary-subtle mt-auto" rows="2" id="deskripsi_kegiatan" value={data.deskripsi_kegiatan} onChange={e => setData('deskripsi_kegiatan', e.target.value)} placeholder="Masukkan deskripsi kegiatan di sini..."></textarea>
+                                        <textarea style={{ resize: "none" }} className="form-control border-secondary-subtle" rows="3" id="deskripsi_kegiatan" value={data.deskripsi_kegiatan} onChange={e => setData('deskripsi_kegiatan', e.target.value)} placeholder="Masukkan deskripsi kegiatan di sini..."></textarea>
                                         {errors.deskripsi_kegiatan && <div className="text-danger small mt-1">{errors.deskripsi_kegiatan}</div>}
                                     </div>
-                                    <div className="col-md-6 d-flex flex-column">
+                                    <div className="col-md-3 d-flex flex-column">
                                         <label className="form-label-custom">Deskripsi Kondisi Lokasi</label>
-                                        <textarea style={{ resize: "none" }} className="form-control border-secondary-subtle mt-auto" rows="2" id="deskripsi_lokasi" value={data.deskripsi_lokasi} onChange={e => setData('deskripsi_lokasi', e.target.value)} placeholder="Masukkan deskripsi kondisi lokasi di sini..."></textarea>
+                                        <textarea style={{ resize: "none" }} className="form-control border-secondary-subtle" rows="3" id="deskripsi_lokasi" value={data.deskripsi_lokasi} onChange={e => setData('deskripsi_lokasi', e.target.value)} placeholder="Masukkan deskripsi kondisi lokasi di sini..."></textarea>
                                         {errors.deskripsi_lokasi && <div className="text-danger small mt-1">{errors.deskripsi_lokasi}</div>}
                                     </div>
+                                </div>
 
+                                <div className="row gx-3 gy-2">
                                     {[
                                         { id: 'file_6', label: 'Peta Polygon Lahan', accept: '.zip', format: 'ZIP (.zip)' },
                                         { id: 'file_13', label: 'Data Kesesuaian Tata Ruang', accept: '.pdf', format: 'PDF (.pdf)' },
                                         { id: 'file_14', label: 'Peta Lokasi', accept: '.pdf', format: 'PDF (.pdf)' },
                                         { id: 'file_15', label: 'SHP Peta Tapak Proyek', accept: '.zip', format: 'ZIP (.zip)' }
                                     ].map(field => (
-                                        <div className="col-md-6 d-flex flex-column" key={field.id}>
-                                            <label className="form-label-custom text-dark mb-2"><i className="fas fa-paperclip text-secondary me-2"></i> {field.label} <span className="text-danger">*</span></label>
-                                            <div className={`file-drop-box mt-auto ${data[field.id] ? 'has-file' : ''}`}>
-                                                <input type="file" className="form-control bg-white shadow-sm mb-2" id={field.id} onChange={e => handleFileChange(e, field.id)} accept={field.accept} />
-                                                <small className="text-muted d-block mt-1">Format: Khusus {field.format} - Maks. 5 MB</small>
-                                            </div>
-                                            {errors[field.id] && <div className="text-danger small mt-1">{errors[field.id]}</div>}
+                                        <div className="col-md-3 d-flex flex-column" key={field.id}>
+                                            <label className="form-label-custom text-dark mb-1" style={{ fontSize: "0.85rem" }}><i className="fas fa-paperclip text-secondary me-2"></i> {field.label} &nbsp;<span className="text-danger">*</span></label>
+                                            <DragDropInput id={field.id} accept={field.accept} onChange={e => handleFileChange(e, field.id)} fileData={data[field.id]} formatText={`Format: Khusus ${field.format} - Maks. 5 MB`} error={errors[field.id]} />
                                         </div>
                                     ))}
                                 </div>
                             </div>
                         </div>
-
-                        {/* BAGIAN 3: FINANSIAL */}
                         <div className="gform-card">
                             <div className="gform-card-header">
                                 <h4 className="gform-section-title">Bagian 3: Finansial, Investasi & SDM</h4>
@@ -364,21 +363,23 @@ export default function Create() {
                                         { id: 'investasi_lain', label: 'Investasi Lain-lain', placeholder: 'Masukkan nominal...' },
                                         { id: 'modal_kerja', label: 'Modal Kerja 3 Bulan - Stok Opname', placeholder: 'Masukkan nominal...' },
                                     ].map(field => (
-                                        <div className="col-md-6 d-flex flex-column" key={field.id}>
-                                            <label className="form-label-custom">{field.label}</label>
-                                            <div className="input-group mt-auto">
-                                                <span className="input-group-text input-group-text-custom">Rp</span>
-                                                <input type="text" className="form-control border-secondary-subtle mt-auto" id={field.id} value={data[field.id]} onChange={e => setData(field.id, e.target.value.replace(/\D/g, ''))} placeholder={field.placeholder} />
+                                        <div className="col-md-3 d-flex flex-column" key={field.id}>
+                                            <div className="mt-auto">
+                                                <label className="form-label-custom">{field.label}</label>
+                                                <div className="input-group">
+                                                    <span className="input-group-text input-group-text-custom">Rp</span>
+                                                    <input type="text" className="form-control border-secondary-subtle" id={field.id} value={data[field.id]} onChange={e => setData(field.id, e.target.value.replace(/\D/g, ''))} placeholder={field.placeholder} />
+                                                </div>
+                                                {errors[field.id] && <div className="text-danger small mt-1">{errors[field.id]}</div>}
                                             </div>
-                                            {errors[field.id] && <div className="text-danger small mt-1">{errors[field.id]}</div>}
                                         </div>
                                     ))}
 
                                     <div className="col-md-12 d-flex flex-column">
                                         <label className="form-label-custom">Nilai Kapasitas / Omzet per Tahun</label>
-                                        <div className="input-group mt-auto">
+                                        <div className="input-group">
                                             <span className="input-group-text input-group-text-custom">Rp</span>
-                                            <input type="text" className="form-control border-secondary-subtle mt-auto" id="omzet_pertahun" value={data.omzet_pertahun} onChange={e => setData('omzet_pertahun', e.target.value.replace(/\D/g, ''))} placeholder="Masukkan nominal omzet..." />
+                                            <input type="text" className="form-control border-secondary-subtle" id="omzet_pertahun" value={data.omzet_pertahun} onChange={e => setData('omzet_pertahun', e.target.value.replace(/\D/g, ''))} placeholder="Masukkan nominal omzet..." />
                                         </div>
                                         {errors.omzet_pertahun && <div className="text-danger small mt-1">{errors.omzet_pertahun}</div>}
                                     </div>
@@ -401,27 +402,27 @@ export default function Create() {
                                                         <label htmlFor="sdm_laki" className="fw-bold text-dark mb-0 small">Laki-laki</label>
                                                     </div>
                                                     <div className="input-group input-group-sm mb-2" style={{ maxWidth: '170px', margin: '0 auto' }}>
-                                                        <button 
-                                                            type="button" 
-                                                            className="btn btn-outline-secondary px-2 fw-bold" 
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-outline-secondary px-2 fw-bold"
                                                             style={{ borderRadius: '8px 0 0 8px', borderColor: '#CBD5E1' }}
                                                             onClick={() => setData('sdm_laki', Math.max(0, (parseInt(data.sdm_laki) || 0) - 1))}
                                                             title="Kurangi"
                                                         >
                                                             <i className="fas fa-minus"></i>
                                                         </button>
-                                                        <input 
-                                                            type="text" 
-                                                            className="form-control text-center fw-bold bg-white" 
-                                                            id="sdm_laki" 
-                                                            value={data.sdm_laki} 
+                                                        <input
+                                                            type="text"
+                                                            className="form-control text-center fw-bold bg-white"
+                                                            id="sdm_laki"
+                                                            value={data.sdm_laki}
                                                             onChange={e => setData('sdm_laki', e.target.value.replace(/\D/g, ''))}
                                                             placeholder="0"
                                                             style={{ fontSize: '1.05rem', borderColor: '#CBD5E1', color: '#0F172A' }}
                                                         />
-                                                        <button 
-                                                            type="button" 
-                                                            className="btn btn-outline-secondary px-2 fw-bold" 
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-outline-secondary px-2 fw-bold"
                                                             style={{ borderRadius: '0 8px 8px 0', borderColor: '#CBD5E1' }}
                                                             onClick={() => setData('sdm_laki', (parseInt(data.sdm_laki) || 0) + 1)}
                                                             title="Tambah"
@@ -445,27 +446,27 @@ export default function Create() {
                                                         <label htmlFor="sdm_perempuan" className="fw-bold text-dark mb-0 small">Perempuan</label>
                                                     </div>
                                                     <div className="input-group input-group-sm mb-2" style={{ maxWidth: '170px', margin: '0 auto' }}>
-                                                        <button 
-                                                            type="button" 
-                                                            className="btn btn-outline-secondary px-2 fw-bold" 
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-outline-secondary px-2 fw-bold"
                                                             style={{ borderRadius: '8px 0 0 8px', borderColor: '#CBD5E1' }}
                                                             onClick={() => setData('sdm_perempuan', Math.max(0, (parseInt(data.sdm_perempuan) || 0) - 1))}
                                                             title="Kurangi"
                                                         >
                                                             <i className="fas fa-minus"></i>
                                                         </button>
-                                                        <input 
-                                                            type="text" 
-                                                            className="form-control text-center fw-bold bg-white" 
-                                                            id="sdm_perempuan" 
-                                                            value={data.sdm_perempuan} 
+                                                        <input
+                                                            type="text"
+                                                            className="form-control text-center fw-bold bg-white"
+                                                            id="sdm_perempuan"
+                                                            value={data.sdm_perempuan}
                                                             onChange={e => setData('sdm_perempuan', e.target.value.replace(/\D/g, ''))}
                                                             placeholder="0"
                                                             style={{ fontSize: '1.05rem', borderColor: '#CBD5E1', color: '#0F172A' }}
                                                         />
-                                                        <button 
-                                                            type="button" 
-                                                            className="btn btn-outline-secondary px-2 fw-bold" 
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-outline-secondary px-2 fw-bold"
                                                             style={{ borderRadius: '0 8px 8px 0', borderColor: '#CBD5E1' }}
                                                             onClick={() => setData('sdm_perempuan', (parseInt(data.sdm_perempuan) || 0) + 1)}
                                                             title="Tambah"
@@ -489,27 +490,27 @@ export default function Create() {
                                                         <label htmlFor="sdm_tka" className="fw-bold text-dark mb-0 small">Tenaga Asing (TKA)</label>
                                                     </div>
                                                     <div className="input-group input-group-sm mb-2" style={{ maxWidth: '170px', margin: '0 auto' }}>
-                                                        <button 
-                                                            type="button" 
-                                                            className="btn btn-outline-secondary px-2 fw-bold" 
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-outline-secondary px-2 fw-bold"
                                                             style={{ borderRadius: '8px 0 0 8px', borderColor: '#CBD5E1' }}
                                                             onClick={() => setData('sdm_tka', Math.max(0, (parseInt(data.sdm_tka) || 0) - 1))}
                                                             title="Kurangi"
                                                         >
                                                             <i className="fas fa-minus"></i>
                                                         </button>
-                                                        <input 
-                                                            type="text" 
-                                                            className="form-control text-center fw-bold bg-white" 
-                                                            id="sdm_tka" 
-                                                            value={data.sdm_tka} 
+                                                        <input
+                                                            type="text"
+                                                            className="form-control text-center fw-bold bg-white"
+                                                            id="sdm_tka"
+                                                            value={data.sdm_tka}
                                                             onChange={e => setData('sdm_tka', e.target.value.replace(/\D/g, ''))}
                                                             placeholder="0"
                                                             style={{ fontSize: '1.05rem', borderColor: '#CBD5E1', color: '#0F172A' }}
                                                         />
-                                                        <button 
-                                                            type="button" 
-                                                            className="btn btn-outline-secondary px-2 fw-bold" 
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-outline-secondary px-2 fw-bold"
                                                             style={{ borderRadius: '0 8px 8px 0', borderColor: '#CBD5E1' }}
                                                             onClick={() => setData('sdm_tka', (parseInt(data.sdm_tka) || 0) + 1)}
                                                             title="Tambah"
@@ -534,7 +535,7 @@ export default function Create() {
                                 <h4 className="gform-section-title">Bagian 4: Persyaratan Umum</h4>
                             </div>
                             <div className="gform-body">
-                                <div className="row gx-3 gy-2">
+                                <div className="row gx-3 gy-2 row-cols-1 row-cols-md-5">
                                     {[
                                         { id: 'file_7', label: 'Dokumen Administrasi', accept: '.pdf' },
                                         { id: 'file_8', label: 'Dokumen Lokasi', accept: '.pdf' },
@@ -542,13 +543,11 @@ export default function Create() {
                                         { id: 'file_10', label: 'Dokumen Sarana & Prasarana', accept: '.pdf' },
                                         { id: 'file_11', label: 'Dokumen SDM (STR, KTP, SIPA, dll)', accept: '.pdf' }
                                     ].map(field => (
-                                        <div className="col-md-6 d-flex flex-column" key={field.id}>
-                                            <label className="form-label-custom text-dark mb-2"><i className="fas fa-paperclip text-secondary me-2"></i> {field.label} <span className="text-danger">*</span></label>
-                                            <div className={`file-drop-box mt-auto ${data[field.id] ? 'has-file' : ''}`}>
-                                                <input type="file" className="form-control bg-white shadow-sm mb-2" id={field.id} onChange={e => handleFileChange(e, field.id)} accept={field.accept} />
-                                                <small className="text-muted d-block mt-1">Format: Khusus PDF (.pdf) - Maks. 5 MB</small>
+                                        <div className="col d-flex flex-column" key={field.id}>
+                                            <div className="mt-auto">
+                                                <label className="form-label-custom text-dark mb-1" style={{ fontSize: "0.85rem" }}><i className="fas fa-paperclip text-secondary me-2"></i> {field.label}&nbsp;<span className="text-danger">*</span></label>
+                                                <DragDropInput id={field.id} accept={field.accept} onChange={e => handleFileChange(e, field.id)} fileData={data[field.id]} formatText="Format: Khusus PDF (.pdf) - Maks. 5 MB" error={errors[field.id]} />
                                             </div>
-                                            {errors[field.id] && <div className="text-danger small mt-1">{errors[field.id]}</div>}
                                         </div>
                                     ))}
                                 </div>
@@ -560,9 +559,9 @@ export default function Create() {
                             <div className="gform-body">
                                 <div className="mb-4">
                                     <label className="form-label-custom fs-6">Keterangan / Catatan Tambahan (Opsional)</label>
-                                    <textarea style={{ resize: "none" }} className="form-control border-secondary-subtle mt-auto" rows="2" value={data.keterangan} onChange={e => setData('keterangan', e.target.value)}></textarea>
+                                    <textarea style={{ resize: "none" }} className="form-control border-secondary-subtle" rows="2" value={data.keterangan} onChange={e => setData('keterangan', e.target.value)}></textarea>
                                 </div>
-                                <div className="d-flex flex-column flex-md-row gap-3 justify-content-end align-items-center bg-light p-3 rounded border">
+                                <div className="d-flex flex-column flex-md-row gap-3 justify-content-end align-items-center mt-3 pt-3 border-top">
                                     <button type="submit" className="btn btn-draft-gform w-100" style={{ maxWidth: '250px' }} onClick={() => { setActionType('draft'); actionTypeRef.current = 'draft'; }} disabled={processing}>
                                         <i className="fas fa-save me-2"></i> Simpan Draft
                                     </button>
@@ -580,24 +579,31 @@ export default function Create() {
                                 <p className="gform-section-desc">Unggah dokumen BAP dari Dinas Kesehatan (Wajib tapi boleh menyusul).</p>
                             </div>
                             <div className="gform-body">
-                                <div className="row gx-3 gy-2 mb-2">
-                                    <div className="col-md-6">
-                                        <label className="form-label-custom text-dark mb-1">
-                                            <i className="fas fa-paperclip text-secondary me-2"></i> Dokumen BAP <span className="text-danger">*</span> <span className="text-muted fw-normal" style={{fontSize: '0.85rem'}}>(Wajib tapi boleh menyusul)</span>
+                                <div className="row align-items-start bg-light rounded p-4 mx-0 mb-3 border border-secondary-subtle">
+                                    <div className="col-md-7 border-md-end border-secondary-subtle pe-md-4 mb-4 mb-md-0">
+                                        <h6 className="fw-bold text-dark mb-2"><i className="fas fa-info-circle text-primary me-2"></i>Informasi Dokumen BAP</h6>
+                                        <p className="text-muted small mb-0" style={{ lineHeight: '1.6' }}>
+                                            Dokumen Berita Acara Pemeriksaan (BAP) diterbitkan oleh Dinas Kesehatan setempat setelah dilakukan pemeriksaan parameter persyaratan di apotek. <br /><br />
+                                            Dokumen ini <strong>wajib</strong> diunggah sebagai syarat operasional, namun <strong>dapat disusulkan</strong> tanpa menghambat proses pengajuan data utama lainnya.
+                                        </p>
+                                    </div>
+                                    <div className="col-md-5 ps-md-4">
+                                        <label className="form-label-custom text-dark mb-2" style={{ fontSize: "0.85rem" }}>
+                                            <i className="fas fa-paperclip text-secondary me-2"></i> Unggah File BAP&nbsp;<span className="text-danger">*</span>
                                         </label>
-                                        <div>
-                                            <div className={`file-drop-box ${data['file_16'] ? 'has-file' : ''}`}>
-                                                <input type="file" className="form-control bg-white shadow-sm mb-2" id="file_16" onChange={e => handleFileChange(e, 'file_16')} accept=".pdf" />
-                                                <small className="text-muted d-block mt-1">Format: Khusus PDF (.pdf) - Maks. 5 MB</small>
-                                            </div>
-                                        </div>
+                                        <DragDropInput
+                                            id="file_16"
+                                            accept=".pdf"
+                                            onChange={(e) => handleFileChange('file_16', e.target.files[0])}
+                                            fileData={data.file_16}
+                                            formatText="Format: PDF - Maks. 5 MB"
+                                            error={errors.file_16}
+                                        />
                                     </div>
                                 </div>
-                                <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 pt-3 mt-3 border-top">
-                                    <div className="text-center text-md-start">
-                                        <small className="text-muted d-block"><i className="fas fa-info-circle text-primary me-1"></i> BAP dapat disusulkan tanpa harus mengubah data pengajuan lainnya.</small>
-                                    </div>
-                                    <button type="submit" className="btn btn-submit-gform text-nowrap shadow-sm" onClick={() => { setActionType('submit'); actionTypeRef.current = 'submit'; }} disabled={processing}>
+
+                                <div className="d-flex flex-column flex-md-row justify-content-end align-items-center pt-2 mt-2 border-top">
+                                    <button type="submit" className="btn btn-submit-gform text-nowrap shadow-sm px-5 py-2" style={{ fontSize: '1rem' }} disabled={processing}>
                                         <i className="fas fa-upload me-2"></i> {processing ? 'MENGUNGGAH...' : 'SUBMIT BAP'}
                                     </button>
                                 </div>
@@ -610,3 +616,10 @@ export default function Create() {
         </CabangLayout>
     );
 }
+
+
+
+
+
+
+

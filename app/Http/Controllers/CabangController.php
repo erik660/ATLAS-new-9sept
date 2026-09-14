@@ -14,7 +14,7 @@ class CabangController extends Controller
     public function index()
     {
         $perizinans = Perizinan::where('user_id', Auth::id())
-            ->where('is_legacy', false)
+            ->where('status', '!=', 'arsip_admin')->where('is_legacy', false)
             ->orderBy('tanggal_pengajuan', 'desc')
             ->orderBy('id', 'desc')
             ->get();
@@ -46,7 +46,7 @@ class CabangController extends Controller
     public function riwayat()
     {
         $perizinans = Perizinan::where('user_id', Auth::id())
-            ->where('is_legacy', false)
+            ->where('status', '!=', 'arsip_admin')->where('is_legacy', false)
             ->with(['activityLogs' => function ($q) {
                 $q->orderBy('created_at', 'asc');
             }])
@@ -148,7 +148,7 @@ class CabangController extends Controller
         if ($request->has('submit_bap') || (strtolower($perizinan->status) === 'approved' && empty($perizinan->file_16))) {
             if ($request->hasFile('file_16')) {
                 $request->validate(['file_16' => 'file|mimes:pdf|max:5120']);
-                $user = \Illuminate\Support\Facades\Auth::user(); $cabang = str_replace(["/", "\\", " "], "_", $user->name); $unit = str_replace(["/", "\\", " "], "_", $perizinan->unit_bisnis ?? "Umum"); $timestamp = now()->format("Ymd_His"); $originalName = str_replace(["/", "\\", " "], "_", $request->file("file_16")->getClientOriginalName()); $dir = "Cabang/{$cabang}/{$unit}"; $filename = "{$timestamp}_{$originalName}"; $updateData = ["file_16" => $request->file("file_16")->storeAs($dir, $filename)];
+                $user = \Illuminate\Support\Facades\Auth::user(); $cabang = str_replace(["/", "\\", " "], "_", $user->name); $unit = str_replace(["/", "\\", " "], "_", $user->unit_bisnis ?? "Umum"); $timestamp = now()->format("Ymd_His"); $originalName = str_replace(["/", "\\", " "], "_", $request->file("file_16")->getClientOriginalName()); $jenis = str_replace(["/", "\\", " "], "_", $request->input("jenis_perizinan", $perizinan->jenis_perizinan ?? "Arsip")); $dir = "Cabang/{$unit}/{$cabang}/{$jenis}"; $filename = "{$timestamp}_file_16_{$originalName}"; $updateData = ["file_16" => $request->file("file_16")->storeAs($dir, $filename, 's3')];
                 if ($perizinan->file_16) {
                     $oldFiles = $perizinan->old_files ? json_decode($perizinan->old_files, true) : [];
                     $oldFiles['file_16'] = $perizinan->file_16;
@@ -416,7 +416,7 @@ class CabangController extends Controller
                     $hasOldFilesUpdate = true;
                 }
 
-                $user = \Illuminate\Support\Facades\Auth::user(); $cabang = str_replace(["/", "\\", " "], "_", $user->name); $unit = str_replace(["/", "\\", " "], "_", $perizinan->unit_bisnis ?? "Umum"); $timestamp = now()->format("Ymd_His"); $originalName = str_replace(["/", "\\", " "], "_", $request->file($field)->getClientOriginalName()); $dir = "Cabang/{$cabang}/{$unit}"; $filename = "{$timestamp}_{$originalName}"; $saved[$field] = $request->file($field)->storeAs($dir, $filename);
+                $user = \Illuminate\Support\Facades\Auth::user(); $cabang = str_replace(["/", "\\", " "], "_", $user->name); $unit = str_replace(["/", "\\", " "], "_", $user->unit_bisnis ?? "Umum"); $timestamp = now()->format("Ymd_His"); $originalName = str_replace(["/", "\\", " "], "_", $request->file($field)->getClientOriginalName()); $jenis = str_replace(["/", "\\", " "], "_", $request->input("jenis_perizinan", $perizinan->jenis_perizinan ?? "Arsip")); $dir = "Cabang/{$unit}/{$cabang}/{$jenis}"; $filename = "{$timestamp}_{$field}_{$originalName}"; $saved[$field] = $request->file($field)->storeAs($dir, $filename, 's3');
             }
         }
         

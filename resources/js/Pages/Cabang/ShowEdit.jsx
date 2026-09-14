@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Head, Link, usePage, useForm } from '@inertiajs/react';
 import CabangLayout from '../../Layouts/CabangLayout';
 import Swal from 'sweetalert2';
+import DragDropInput from '../../Components/DragDropInput';
 
 export default function ShowEdit({ perizinan }) {
     const { auth, flash, errors: pageErrors } = usePage().props;
@@ -217,7 +218,6 @@ export default function ShowEdit({ perizinan }) {
             }
         });
     };
-
     const renderInputBadge = (fieldName) => {
         if (isRevisiMode && revisiFields.includes(fieldName)) {
             return <span className="badge bg-danger ms-1" style={{ fontSize: '0.7rem' }}><i className="fas fa-exclamation-circle"></i> Wajib Direvisi</span>;
@@ -259,7 +259,7 @@ export default function ShowEdit({ perizinan }) {
         return false;
     };
 
-    const renderFileField = (id, label, accept, format) => {
+    const renderFileField = (id, label, accept, format, colClass = "col-md-4 d-flex flex-column") => {
         const fileIdNum = id.replace('file_', '');
         const isRevisi = statusDokumen[fileIdNum] === 'revisi';
         const isSesuai = statusDokumen[fileIdNum] === 'sesuai';
@@ -267,21 +267,21 @@ export default function ShowEdit({ perizinan }) {
         if (isRevisiMode && isSesuai) return null; // Hide if already accepted during revision
 
         return (
-            <div className="col-md-6">
-                <label className="form-label-custom text-dark mb-1">
-                    <i className="fas fa-paperclip text-secondary me-2"></i> {label} <span className="text-danger">*</span>
-                </label>
-                <div>
-                    <div className={`file-drop-box ${data[id] ? 'has-file' : ''}`} style={{
-                        borderColor: isRevisi ? '#dc3545' : '',
-                        backgroundColor: isRevisi ? '#fff8f8' : '',
-                        opacity: isLocked ? '0.5' : '1',
-                        pointerEvents: isLocked ? 'none' : 'auto'
-                    }}>
-                        {isRevisi && <div className="badge bg-danger px-3 py-2" style={{ position: 'absolute', top: 0, right: 0, fontSize: '13px', zIndex: 10, borderRadius: '0 8px 0 8px' }}><i className="fas fa-times-circle me-1"></i> WAJIB DIREVISI</div>}
-                        <input type="file" className="form-control bg-white shadow-sm mb-2" onChange={e => handleFileChange(e, id)} accept={accept} disabled={isLocked} />
-                        <small className="text-muted d-block mt-1">Format: Khusus {format} - Maks. 5 MB</small>
-                    </div>
+            <div className={colClass}>
+                <div className="mt-auto">
+                    <label className="form-label-custom text-dark mb-1" style={{ fontSize: "0.85rem" }}>
+                        <i className="fas fa-paperclip text-secondary me-2"></i> {label}&nbsp;<span className="text-danger">*</span>
+                    </label>
+                    <DragDropInput
+                        id={id}
+                        accept={accept}
+                        onChange={e => handleFileChange(e, id)}
+                        fileData={perizinan[id] || data[id]}
+                        formatText={`Format: Khusus ${format} - Maks. 5 MB`}
+                        error={pageErrors[id]}
+                        isRevisi={isRevisi}
+                        isLocked={isLocked}
+                    />
 
                     {perizinan[id] && !isRevisi && (
                         <div className="mt-2 text-success small fw-bold">
@@ -290,7 +290,7 @@ export default function ShowEdit({ perizinan }) {
                             {!isLocked && <><br /><span className="text-muted fw-normal" style={{ fontSize: '0.8rem' }}>*Unggah file baru jika ingin mengganti</span></>}
                         </div>
                     )}
-                    
+
                     {perizinan[id] && isRevisi && (
                         <div className="mt-2 text-danger small fw-bold">
                             <i className="fas fa-history me-1"></i> Berkas yang ditolak:
@@ -317,8 +317,8 @@ export default function ShowEdit({ perizinan }) {
                 .file-drop-box.has-file::before { background-color: #10B981; }
                 .file-drop-box input[type="file"] { font-size: 0.88rem; }
                 .input-group-text-custom { background-color: #f1f3f5; border-color: #ced4da; color: #495057; font-weight: 600; }
-                .btn-submit-gform { background: linear-gradient(135deg, #F26522, #d8541a); color: white; font-weight: 700; font-size: 1.1rem; padding: 14px 32px; border-radius: 50px; border: none; box-shadow: 0 4px 15px rgba(242, 101, 34, 0.3); transition: all 0.3s; }
-                .btn-draft-gform { background-color: #ffffff; color: #495057; font-weight: 600; font-size: 1rem; padding: 14px 28px; border-radius: 50px; border: 2px solid #dee2e6; transition: all 0.3s; }
+                .btn-submit-gform { background: linear-gradient(135deg, #F26522, #d8541a); color: white; font-weight: 700; font-size: 1rem; padding: 10px 24px; border-radius: 50px; border: none; box-shadow: 0 4px 15px rgba(242, 101, 34, 0.3); transition: all 0.3s; }
+                .btn-draft-gform { background-color: #ffffff; color: #495057; font-weight: 600; font-size: 1rem; padding: 10px 24px; border-radius: 50px; border: 2px solid #dee2e6; transition: all 0.3s; }
                 input::placeholder, textarea::placeholder, .form-control::placeholder { font-style: italic !important; color: #94a3b8 !important; opacity: 0.75 !important; font-weight: 400 !important; }
             `}</style>
 
@@ -364,11 +364,11 @@ export default function ShowEdit({ perizinan }) {
                             <ul className="mb-0" style={{ fontSize: '0.85rem', paddingLeft: '1.2rem', color: '#b91c1c' }}>
                                 {Object.entries(statusDokumen).map(([key, status]) => {
                                     if (!catatanDokumen[key] || status !== 'revisi') return null;
-                                    
+
                                     let label = '';
                                     let fieldsStr = '';
                                     let hasOldValue = false;
-                                    
+
                                     if (key === 'bagian2') {
                                         label = 'Bagian 2 (Alamat & Tata Ruang)';
                                         if (revisiFields && revisiFields.length > 0) {
@@ -436,7 +436,7 @@ export default function ShowEdit({ perizinan }) {
                                                             const [fName, fVal] = fStr.split(':::');
                                                             return (
                                                                 <span key={idx} className="me-3 d-inline-block mb-1">
-                                                                    <span className="text-muted fw-bold me-1">{fName}:</span> 
+                                                                    <span className="text-muted fw-bold me-1">{fName}:</span>
                                                                     <span className="text-danger text-decoration-line-through">{fVal}</span>
                                                                 </span>
                                                             );
@@ -485,308 +485,314 @@ export default function ShowEdit({ perizinan }) {
                             {/* BAGIAN 1 */}
                             {!isSectionHidden('bagian1') && (
                                 <div className="gform-card">
-                                <div className="gform-card-header">
-                                    <h4 className="gform-section-title">Bagian 1: Persyaratan Dasar</h4>
-                                </div>
-                                <div className="gform-body">
-                                    <div className="row gx-3 gy-2">
-                                        {renderFileField('file_1', 'SIA Terakhir', '.pdf', 'PDF (.pdf)')}
-                                        {renderFileField('file_2', 'SIPA Terbaru yang Masih Berlaku', '.pdf', 'PDF (.pdf)')}
-                                        {renderFileField('file_3', 'Akta Perjanjian Sewa', '.pdf', 'PDF (.pdf)')}
-                                        {renderFileField('file_4', 'Rencana Teknis Bangunan (RTB/RIK)', '.pdf', 'PDF (.pdf)')}
-                                        {renderFileField('file_5', 'Izin Lokasi yang Diterbitkan OSS', '.pdf', 'PDF (.pdf)')}
-                                        {renderFileField('file_12', 'Sertifikat Tanah dan IMB', '.pdf', 'PDF (.pdf)')}
+                                    <div className="gform-card-header">
+                                        <h4 className="gform-section-title">Bagian 1: Persyaratan Dasar</h4>
+                                    </div>
+                                    <div className="gform-body">
+                                        <div className="row gx-3 gy-2">
+                                            {renderFileField('file_1', 'SIA Terakhir', '.pdf', 'PDF (.pdf)')}
+                                            {renderFileField('file_2', 'SIPA Terbaru yang Masih Berlaku', '.pdf', 'PDF (.pdf)')}
+                                            {renderFileField('file_3', 'Akta Perjanjian Sewa', '.pdf', 'PDF (.pdf)')}
+                                            {renderFileField('file_4', 'Rencana Teknis Bangunan (RTB/RIK)', '.pdf', 'PDF (.pdf)')}
+                                            {renderFileField('file_5', 'Izin Lokasi yang Diterbitkan OSS', '.pdf', 'PDF (.pdf)')}
+                                            {renderFileField('file_12', 'Sertifikat Tanah dan IMB', '.pdf', 'PDF (.pdf)')}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
                             )}
 
                             {/* BAGIAN 2 */}
                             {!isSectionHidden('bagian2') && (
                                 <div className="gform-card">
-                                <div className="gform-card-header">
-                                    <h4 className="gform-section-title">Bagian 2: Alamat, Geografis Lahan & Tata Ruang</h4>
-                                </div>
-                                <div className="gform-body">
-                                    <div className="row gx-3 gy-2">
-                                        {!isFieldHidden('nama_rencana_usaha') && (
-                                            <div className="col-md-6 d-flex flex-column">
-                                                <label className="form-label-custom">Nama Rencana Usaha / Kegiatan {renderInputBadge('nama_rencana_usaha')}</label>
-                                                <input type="text" className={`form-control border-secondary-subtle bg-light mt-auto ${revisiFields.includes('nama_rencana_usaha') ? 'is-invalid border-danger' : ''}`} value={data.nama_rencana_usaha} onChange={e => setData('nama_rencana_usaha', e.target.value)} placeholder="Masukkan nama rencana usaha di sini..." disabled={isLocked} />
-                                            </div>
-                                        )}
-
-                                        {!isFieldHidden('kode_pos') && (
-                                            <div className="col-md-3 d-flex flex-column">
-                                                <label className="form-label-custom">Kode Pos {renderInputBadge('kode_pos')}</label>
-                                                <input type="text" className={`form-control border-secondary-subtle mt-auto ${revisiFields.includes('kode_pos') ? 'is-invalid border-danger' : ''}`} value={data.kode_pos} onChange={e => setData('kode_pos', e.target.value.replace(/\D/g, ''))} placeholder="Masukkan kode pos..." disabled={isLocked} />
-                                            </div>
-                                        )}
-
-                                        {!isFieldHidden('luas_lahan') && (
-                                            <div className="col-md-3 d-flex flex-column">
-                                                <label className="form-label-custom">Luas Lahan {renderInputBadge('luas_lahan')}</label>
-                                                <div className="input-group mt-auto">
-                                                    <input type="text" className={`form-control border-secondary-subtle mt-auto ${revisiFields.includes('luas_lahan') ? 'is-invalid border-danger' : ''}`} value={data.luas_lahan} onChange={e => setData('luas_lahan', e.target.value.replace(/\D/g, ''))} placeholder="Masukkan luas lahan..." disabled={isLocked} />
-                                                    <span className="input-group-text input-group-text-custom">m²</span>
+                                    <div className="gform-card-header">
+                                        <h4 className="gform-section-title">Bagian 2: Alamat, Geografis Lahan & Tata Ruang</h4>
+                                    </div>
+                                    <div className="gform-body">
+                                        <div className="row gx-3 gy-2">
+                                            {!isFieldHidden('nama_rencana_usaha') && (
+                                                <div className="col-md-6 d-flex flex-column">
+                                                    <div className="mt-auto">
+                                                        <label className="form-label-custom">Nama Rencana Usaha / Kegiatan {renderInputBadge('nama_rencana_usaha')}</label>
+                                                        <input type="text" className={`form-control border-secondary-subtle bg-light ${revisiFields.includes('nama_rencana_usaha') ? 'is-invalid border-danger' : ''}`} value={data.nama_rencana_usaha} onChange={e => setData('nama_rencana_usaha', e.target.value)} placeholder="Masukkan nama rencana usaha di sini..." disabled={isLocked} />
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        )}
+                                            )}
 
-                                        {!isFieldHidden('alamat_lengkap') && (
-                                            <div className="col-md-6 d-flex flex-column">
-                                                <label className="form-label-custom">Alamat Lengkap Apotek {renderInputBadge('alamat_lengkap')}</label>
-                                                <textarea style={{ resize: "none" }} className={`form-control border-secondary-subtle bg-light mt-auto ${revisiFields.includes('alamat_lengkap') ? 'is-invalid border-danger' : ''}`} rows="2" value={data.alamat_lengkap} onChange={e => setData('alamat_lengkap', e.target.value)} placeholder="Masukkan alamat lengkap apotek di sini..." disabled={isLocked}></textarea>
-                                            </div>
-                                        )}
+                                            {!isFieldHidden('kode_pos') && (
+                                                <div className="col-md-3 d-flex flex-column">
+                                                    <div className="mt-auto">
+                                                        <label className="form-label-custom">Kode Pos {renderInputBadge('kode_pos')}</label>
+                                                        <input type="text" className={`form-control border-secondary-subtle ${revisiFields.includes('kode_pos') ? 'is-invalid border-danger' : ''}`} value={data.kode_pos} onChange={e => setData('kode_pos', e.target.value.replace(/\D/g, ''))} placeholder="Masukkan kode pos..." disabled={isLocked} />
+                                                    </div>
+                                                </div>
+                                            )}
 
-                                        {!isFieldHidden('lokasi_alamat_lengkap') && (
-                                            <div className="col-md-6 d-flex flex-column">
-                                                <label className="form-label-custom">Rincian Alamat Lokasi Kegiatan {renderInputBadge('lokasi_alamat_lengkap')}</label>
-                                                <textarea style={{ resize: "none" }} className={`form-control border-secondary-subtle bg-light mt-auto ${revisiFields.includes('lokasi_alamat_lengkap') ? 'is-invalid border-danger' : ''}`} rows="2" value={data.lokasi_alamat_lengkap} onChange={e => setData('lokasi_alamat_lengkap', e.target.value)} placeholder="Masukkan rincian alamat lokasi di sini..." disabled={isLocked}></textarea>
-                                            </div>
-                                        )}
+                                            {!isFieldHidden('luas_lahan') && (
+                                                <div className="col-md-3 d-flex flex-column">
+                                                    <label className="form-label-custom">Luas Lahan {renderInputBadge('luas_lahan')}</label>
+                                                    <div className="input-group">
+                                                        <input type="text" className={`form-control border-secondary-subtle ${revisiFields.includes('luas_lahan') ? 'is-invalid border-danger' : ''}`} value={data.luas_lahan} onChange={e => setData('luas_lahan', e.target.value.replace(/\D/g, ''))} placeholder="Masukkan luas lahan..." disabled={isLocked} />
+                                                        <span className="input-group-text input-group-text-custom">m²</span>
+                                                    </div>
+                                                </div>
+                                            )}
 
-                                        {!isFieldHidden('deskripsi_kegiatan') && (
-                                            <div className="col-md-6 d-flex flex-column">
-                                                <label className="form-label-custom">Deskripsi Kegiatan Usaha {renderInputBadge('deskripsi_kegiatan')}</label>
-                                                <textarea style={{ resize: "none" }} className={`form-control border-secondary-subtle mt-auto ${revisiFields.includes('deskripsi_kegiatan') ? 'is-invalid border-danger' : ''}`} rows="2" value={data.deskripsi_kegiatan} onChange={e => setData('deskripsi_kegiatan', e.target.value)} placeholder="Masukkan deskripsi kegiatan di sini..." disabled={isLocked}></textarea>
-                                            </div>
-                                        )}
+                                            {!isFieldHidden('alamat_lengkap') && (
+                                                <div className="col-md-6 d-flex flex-column">
+                                                    <label className="form-label-custom">Alamat Lengkap Apotek {renderInputBadge('alamat_lengkap')}</label>
+                                                    <textarea style={{ resize: "none" }} className={`form-control border-secondary-subtle bg-light ${revisiFields.includes('alamat_lengkap') ? 'is-invalid border-danger' : ''}`} rows="2" value={data.alamat_lengkap} onChange={e => setData('alamat_lengkap', e.target.value)} placeholder="Masukkan alamat lengkap apotek di sini..." disabled={isLocked}></textarea>
+                                                </div>
+                                            )}
 
-                                        {!isFieldHidden('deskripsi_lokasi') && (
-                                            <div className="col-md-6 d-flex flex-column">
-                                                <label className="form-label-custom">Deskripsi Kondisi Lokasi {renderInputBadge('deskripsi_lokasi')}</label>
-                                                <textarea style={{ resize: "none" }} className={`form-control border-secondary-subtle mt-auto ${revisiFields.includes('deskripsi_lokasi') ? 'is-invalid border-danger' : ''}`} rows="2" value={data.deskripsi_lokasi} onChange={e => setData('deskripsi_lokasi', e.target.value)} placeholder="Masukkan deskripsi kondisi lokasi di sini..." disabled={isLocked}></textarea>
-                                            </div>
-                                        )}
+                                            {!isFieldHidden('lokasi_alamat_lengkap') && (
+                                                <div className="col-md-6 d-flex flex-column">
+                                                    <label className="form-label-custom">Rincian Alamat Lokasi Kegiatan {renderInputBadge('lokasi_alamat_lengkap')}</label>
+                                                    <textarea style={{ resize: "none" }} className={`form-control border-secondary-subtle bg-light ${revisiFields.includes('lokasi_alamat_lengkap') ? 'is-invalid border-danger' : ''}`} rows="2" value={data.lokasi_alamat_lengkap} onChange={e => setData('lokasi_alamat_lengkap', e.target.value)} placeholder="Masukkan rincian alamat lokasi di sini..." disabled={isLocked}></textarea>
+                                                </div>
+                                            )}
 
-                                        {renderFileField('file_6', 'Peta Polygon Lahan', '.zip', 'ZIP (.zip)')}
-                                        {renderFileField('file_13', 'Data Kesesuaian Tata Ruang', '.pdf', 'PDF (.pdf)')}
-                                        {renderFileField('file_14', 'Peta Lokasi', '.pdf', 'PDF (.pdf)')}
-                                        {renderFileField('file_15', 'SHP Peta Tapak Proyek', '.zip', 'ZIP (.zip)')}
+                                            {!isFieldHidden('deskripsi_kegiatan') && (
+                                                <div className="col-md-6 d-flex flex-column">
+                                                    <label className="form-label-custom">Deskripsi Kegiatan Usaha {renderInputBadge('deskripsi_kegiatan')}</label>
+                                                    <textarea style={{ resize: "none" }} className={`form-control border-secondary-subtle ${revisiFields.includes('deskripsi_kegiatan') ? 'is-invalid border-danger' : ''}`} rows="2" value={data.deskripsi_kegiatan} onChange={e => setData('deskripsi_kegiatan', e.target.value)} placeholder="Masukkan deskripsi kegiatan di sini..." disabled={isLocked}></textarea>
+                                                </div>
+                                            )}
+
+                                            {!isFieldHidden('deskripsi_lokasi') && (
+                                                <div className="col-md-6 d-flex flex-column">
+                                                    <label className="form-label-custom">Deskripsi Kondisi Lokasi {renderInputBadge('deskripsi_lokasi')}</label>
+                                                    <textarea style={{ resize: "none" }} className={`form-control border-secondary-subtle ${revisiFields.includes('deskripsi_lokasi') ? 'is-invalid border-danger' : ''}`} rows="2" value={data.deskripsi_lokasi} onChange={e => setData('deskripsi_lokasi', e.target.value)} placeholder="Masukkan deskripsi kondisi lokasi di sini..." disabled={isLocked}></textarea>
+                                                </div>
+                                            )}
+
+                                            {renderFileField('file_6', 'Peta Polygon Lahan', '.zip', 'ZIP (.zip)')}
+                                            {renderFileField('file_13', 'Data Kesesuaian Tata Ruang', '.pdf', 'PDF (.pdf)')}
+                                            {renderFileField('file_14', 'Peta Lokasi', '.pdf', 'PDF (.pdf)')}
+                                            {renderFileField('file_15', 'SHP Peta Tapak Proyek', '.zip', 'ZIP (.zip)')}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
                             )}
 
                             {/* BAGIAN 3 */}
                             {!isSectionHidden('bagian3') && (
                                 <div className="gform-card">
-                                <div className="gform-card-header">
-                                    <h4 className="gform-section-title">Bagian 3: Finansial, Investasi & SDM</h4>
-                                </div>
-                                <div className="gform-body">
-                                    <div className="row gx-3 gy-2">
-                                        {[
-                                            { id: 'bangunan_renovasi', label: 'Bangunan / Gedung Renovasi', placeholder: 'Masukkan nominal...' },
-                                            { id: 'mesin_peralatan', label: 'Mesin / Peralatan Dalam Negeri', placeholder: 'Masukkan nominal...' },
-                                            { id: 'investasi_lain', label: 'Investasi Lain-lain', placeholder: 'Masukkan nominal...' },
-                                            { id: 'modal_kerja', label: 'Modal Kerja 3 Bulan - Stok Opname', placeholder: 'Masukkan nominal...' },
-                                        ].map(field => !isFieldHidden(field.id) && (
-                                            <div className="col-md-6 d-flex flex-column" key={field.id}>
-                                                <label className="form-label-custom">{field.label} {renderInputBadge(field.id)}</label>
-                                                <div className="input-group mt-auto">
-                                                    <span className="input-group-text input-group-text-custom">Rp</span>
-                                                    <input type="text" className={`form-control border-secondary-subtle mt-auto ${revisiFields.includes(field.id) ? 'is-invalid border-danger' : ''}`} value={data[field.id]} onChange={e => setData(field.id, e.target.value.replace(/\D/g, ''))} placeholder={field.placeholder} disabled={isLocked} />
-                                                </div>
-                                            </div>
-                                        ))}
-
-                                        {!isFieldHidden('omzet_pertahun') && (
-                                            <div className="col-md-12 d-flex flex-column">
-                                                <label className="form-label-custom">Nilai Kapasitas / Omzet per Tahun {renderInputBadge('omzet_pertahun')}</label>
-                                                <div className="input-group mt-auto">
-                                                    <span className="input-group-text input-group-text-custom">Rp</span>
-                                                    <input type="text" className={`form-control border-secondary-subtle mt-auto ${revisiFields.includes('omzet_pertahun') ? 'is-invalid border-danger' : ''}`} value={data.omzet_pertahun} onChange={e => setData('omzet_pertahun', e.target.value.replace(/\D/g, ''))} placeholder="Masukkan nominal omzet..." disabled={isLocked} />
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {(!isFieldHidden('sdm_laki') || !isFieldHidden('sdm_perempuan') || !isFieldHidden('sdm_tka')) && (
-                                            <div className="col-md-12 d-flex flex-column">
-                                                <div className="d-flex align-items-center justify-content-between mb-2">
-                                                    <label className="form-label-custom mb-0">
-                                                        Jumlah Personel SDM Apotek <span className="text-danger">*</span>
-                                                    </label>
-                                                    {!isLocked && (
-                                                        <small className="text-muted"><i className="fas fa-info-circle me-1"></i>Ketik angka atau gunakan tombol <strong>+</strong> / <strong>-</strong></small>
-                                                    )}
-                                                </div>
-                                                <div className="row gx-3 gy-3">
-                                                    {/* SDM Laki-laki */}
-                                                    <div className="col-md-4">
-                                                        <div className={`p-3 bg-white rounded-3 shadow-sm border text-center ${revisiFields.includes('sdm_laki') ? 'border-2 border-danger' : ''}`} style={{ borderColor: '#E2E8F0' }}>
-                                                            <div className="d-flex align-items-center justify-content-center gap-2 mb-2">
-                                                                <div className="rounded-circle d-flex align-items-center justify-content-center" style={{ width: '34px', height: '34px', background: 'rgba(37, 99, 235, 0.1)', color: '#2563EB' }}>
-                                                                    <i className="fas fa-male fs-5"></i>
-                                                                </div>
-                                                                <label className="fw-bold text-dark mb-0 small">Laki-laki {renderInputBadge('sdm_laki')}</label>
-                                                            </div>
-                                                            <div className="input-group input-group-sm mb-2" style={{ maxWidth: '170px', margin: '0 auto' }}>
-                                                                {!isLocked && (
-                                                                    <button 
-                                                                        type="button" 
-                                                                        className="btn btn-outline-secondary px-2 fw-bold" 
-                                                                        style={{ borderRadius: '8px 0 0 8px', borderColor: '#CBD5E1' }}
-                                                                        onClick={() => setData('sdm_laki', Math.max(0, (parseInt(data.sdm_laki) || 0) - 1))}
-                                                                        disabled={isLocked}
-                                                                        title="Kurangi"
-                                                                    >
-                                                                        <i className="fas fa-minus"></i>
-                                                                    </button>
-                                                                )}
-                                                                <input 
-                                                                    type="text" 
-                                                                    className="form-control text-center fw-bold bg-white" 
-                                                                    value={data.sdm_laki} 
-                                                                    onChange={e => setData('sdm_laki', e.target.value.replace(/\D/g, ''))} 
-                                                                    disabled={isLocked} 
-                                                                    placeholder="0"
-                                                                    style={{ fontSize: '1.05rem', borderColor: '#CBD5E1', color: '#0F172A', borderRadius: isLocked ? '8px' : undefined }}
-                                                                />
-                                                                {!isLocked && (
-                                                                    <button 
-                                                                        type="button" 
-                                                                        className="btn btn-outline-secondary px-2 fw-bold" 
-                                                                        style={{ borderRadius: '0 8px 8px 0', borderColor: '#CBD5E1' }}
-                                                                        onClick={() => setData('sdm_laki', (parseInt(data.sdm_laki) || 0) + 1)}
-                                                                        disabled={isLocked}
-                                                                        title="Tambah"
-                                                                    >
-                                                                        <i className="fas fa-plus"></i>
-                                                                    </button>
-                                                                )}
-                                                            </div>
-                                                            <div className="badge bg-light text-secondary border px-2 py-1 fw-normal" style={{ fontSize: '0.75rem' }}>
-                                                                <i className="fas fa-user me-1 text-primary"></i> <strong>{data.sdm_laki || 0}</strong> Orang
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    {/* SDM Perempuan */}
-                                                    <div className="col-md-4">
-                                                        <div className={`p-3 bg-white rounded-3 shadow-sm border text-center ${revisiFields.includes('sdm_perempuan') ? 'border-2 border-danger' : ''}`} style={{ borderColor: '#E2E8F0' }}>
-                                                            <div className="d-flex align-items-center justify-content-center gap-2 mb-2">
-                                                                <div className="rounded-circle d-flex align-items-center justify-content-center" style={{ width: '34px', height: '34px', background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}>
-                                                                    <i className="fas fa-female fs-5"></i>
-                                                                </div>
-                                                                <label className="fw-bold text-dark mb-0 small">Perempuan {renderInputBadge('sdm_perempuan')}</label>
-                                                            </div>
-                                                            <div className="input-group input-group-sm mb-2" style={{ maxWidth: '170px', margin: '0 auto' }}>
-                                                                {!isLocked && (
-                                                                    <button 
-                                                                        type="button" 
-                                                                        className="btn btn-outline-secondary px-2 fw-bold" 
-                                                                        style={{ borderRadius: '8px 0 0 8px', borderColor: '#CBD5E1' }}
-                                                                        onClick={() => setData('sdm_perempuan', Math.max(0, (parseInt(data.sdm_perempuan) || 0) - 1))}
-                                                                        disabled={isLocked}
-                                                                        title="Kurangi"
-                                                                    >
-                                                                        <i className="fas fa-minus"></i>
-                                                                    </button>
-                                                                )}
-                                                                <input 
-                                                                    type="text" 
-                                                                    className="form-control text-center fw-bold bg-white" 
-                                                                    value={data.sdm_perempuan} 
-                                                                    onChange={e => setData('sdm_perempuan', e.target.value.replace(/\D/g, ''))} 
-                                                                    disabled={isLocked} 
-                                                                    placeholder="0"
-                                                                    style={{ fontSize: '1.05rem', borderColor: '#CBD5E1', color: '#0F172A', borderRadius: isLocked ? '8px' : undefined }}
-                                                                />
-                                                                {!isLocked && (
-                                                                    <button 
-                                                                        type="button" 
-                                                                        className="btn btn-outline-secondary px-2 fw-bold" 
-                                                                        style={{ borderRadius: '0 8px 8px 0', borderColor: '#CBD5E1' }}
-                                                                        onClick={() => setData('sdm_perempuan', (parseInt(data.sdm_perempuan) || 0) + 1)}
-                                                                        disabled={isLocked}
-                                                                        title="Tambah"
-                                                                    >
-                                                                        <i className="fas fa-plus"></i>
-                                                                    </button>
-                                                                )}
-                                                            </div>
-                                                            <div className="badge bg-light text-secondary border px-2 py-1 fw-normal" style={{ fontSize: '0.75rem' }}>
-                                                                <i className="fas fa-user me-1 text-danger"></i> <strong>{data.sdm_perempuan || 0}</strong> Orang
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    {/* SDM TKA */}
-                                                    <div className="col-md-4">
-                                                        <div className={`p-3 bg-white rounded-3 shadow-sm border text-center ${revisiFields.includes('sdm_tka') ? 'border-2 border-danger' : ''}`} style={{ borderColor: '#E2E8F0' }}>
-                                                            <div className="d-flex align-items-center justify-content-center gap-2 mb-2">
-                                                                <div className="rounded-circle d-flex align-items-center justify-content-center" style={{ width: '34px', height: '34px', background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}>
-                                                                    <i className="fas fa-globe-asia fs-5"></i>
-                                                                </div>
-                                                                <label className="fw-bold text-dark mb-0 small">TKA {renderInputBadge('sdm_tka')}</label>
-                                                            </div>
-                                                            <div className="input-group input-group-sm mb-2" style={{ maxWidth: '170px', margin: '0 auto' }}>
-                                                                {!isLocked && (
-                                                                    <button 
-                                                                        type="button" 
-                                                                        className="btn btn-outline-secondary px-2 fw-bold" 
-                                                                        style={{ borderRadius: '8px 0 0 8px', borderColor: '#CBD5E1' }}
-                                                                        onClick={() => setData('sdm_tka', Math.max(0, (parseInt(data.sdm_tka) || 0) - 1))}
-                                                                        disabled={isLocked}
-                                                                        title="Kurangi"
-                                                                    >
-                                                                        <i className="fas fa-minus"></i>
-                                                                    </button>
-                                                                )}
-                                                                <input 
-                                                                    type="text" 
-                                                                    className="form-control text-center fw-bold bg-white" 
-                                                                    value={data.sdm_tka} 
-                                                                    onChange={e => setData('sdm_tka', e.target.value.replace(/\D/g, ''))} 
-                                                                    disabled={isLocked} 
-                                                                    placeholder="0"
-                                                                    style={{ fontSize: '1.05rem', borderColor: '#CBD5E1', color: '#0F172A', borderRadius: isLocked ? '8px' : undefined }}
-                                                                />
-                                                                {!isLocked && (
-                                                                    <button 
-                                                                        type="button" 
-                                                                        className="btn btn-outline-secondary px-2 fw-bold" 
-                                                                        style={{ borderRadius: '0 8px 8px 0', borderColor: '#CBD5E1' }}
-                                                                        onClick={() => setData('sdm_tka', (parseInt(data.sdm_tka) || 0) + 1)}
-                                                                        disabled={isLocked}
-                                                                        title="Tambah"
-                                                                    >
-                                                                        <i className="fas fa-plus"></i>
-                                                                    </button>
-                                                                )}
-                                                            </div>
-                                                            <div className="badge bg-light text-secondary border px-2 py-1 fw-normal" style={{ fontSize: '0.75rem' }}>
-                                                                <i className="fas fa-globe me-1 text-success"></i> <strong>{data.sdm_tka || 0}</strong> Orang
-                                                            </div>
+                                    <div className="gform-card-header">
+                                        <h4 className="gform-section-title">Bagian 3: Finansial, Investasi & SDM</h4>
+                                    </div>
+                                    <div className="gform-body">
+                                        <div className="row gx-3 gy-2">
+                                            {[
+                                                { id: 'bangunan_renovasi', label: 'Bangunan / Gedung Renovasi', placeholder: 'Masukkan nominal...' },
+                                                { id: 'mesin_peralatan', label: 'Mesin / Peralatan Dalam Negeri', placeholder: 'Masukkan nominal...' },
+                                                { id: 'investasi_lain', label: 'Investasi Lain-lain', placeholder: 'Masukkan nominal...' },
+                                                { id: 'modal_kerja', label: 'Modal Kerja 3 Bulan - Stok Opname', placeholder: 'Masukkan nominal...' },
+                                            ].map(field => !isFieldHidden(field.id) && (
+                                                <div className="col-md-6 d-flex flex-column" key={field.id}>
+                                                    <div className="mt-auto">
+                                                        <label className="form-label-custom">{field.label} {renderInputBadge(field.id)}</label>
+                                                        <div className="input-group">
+                                                            <span className="input-group-text input-group-text-custom">Rp</span>
+                                                            <input type="text" className={`form-control border-secondary-subtle ${revisiFields.includes(field.id) ? 'is-invalid border-danger' : ''}`} value={data[field.id]} onChange={e => setData(field.id, e.target.value.replace(/\D/g, ''))} placeholder={field.placeholder} disabled={isLocked} />
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        )}
+                                            ))}
+
+                                            {!isFieldHidden('omzet_pertahun') && (
+                                                <div className="col-md-12 d-flex flex-column">
+                                                    <label className="form-label-custom">Nilai Kapasitas / Omzet per Tahun {renderInputBadge('omzet_pertahun')}</label>
+                                                    <div className="input-group">
+                                                        <span className="input-group-text input-group-text-custom">Rp</span>
+                                                        <input type="text" className={`form-control border-secondary-subtle ${revisiFields.includes('omzet_pertahun') ? 'is-invalid border-danger' : ''}`} value={data.omzet_pertahun} onChange={e => setData('omzet_pertahun', e.target.value.replace(/\D/g, ''))} placeholder="Masukkan nominal omzet..." disabled={isLocked} />
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {(!isFieldHidden('sdm_laki') || !isFieldHidden('sdm_perempuan') || !isFieldHidden('sdm_tka')) && (
+                                                <div className="col-md-12 d-flex flex-column">
+                                                    <div className="d-flex align-items-center justify-content-between mb-2">
+                                                        <label className="form-label-custom mb-0">
+                                                            Jumlah Personel SDM Apotek <span className="text-danger">*</span>
+                                                        </label>
+                                                        {!isLocked && (
+                                                            <small className="text-muted"><i className="fas fa-info-circle me-1"></i>Ketik angka atau gunakan tombol <strong>+</strong> / <strong>-</strong></small>
+                                                        )}
+                                                    </div>
+                                                    <div className="row gx-3 gy-3">
+                                                        {/* SDM Laki-laki */}
+                                                        <div className="col-md-4">
+                                                            <div className={`p-3 bg-white rounded-3 shadow-sm border text-center ${revisiFields.includes('sdm_laki') ? 'border-2 border-danger' : ''}`} style={{ borderColor: '#E2E8F0' }}>
+                                                                <div className="d-flex align-items-center justify-content-center gap-2 mb-2">
+                                                                    <div className="rounded-circle d-flex align-items-center justify-content-center" style={{ width: '34px', height: '34px', background: 'rgba(37, 99, 235, 0.1)', color: '#2563EB' }}>
+                                                                        <i className="fas fa-male fs-5"></i>
+                                                                    </div>
+                                                                    <label className="fw-bold text-dark mb-0 small">Laki-laki {renderInputBadge('sdm_laki')}</label>
+                                                                </div>
+                                                                <div className="input-group input-group-sm mb-2" style={{ maxWidth: '170px', margin: '0 auto' }}>
+                                                                    {!isLocked && (
+                                                                        <button
+                                                                            type="button"
+                                                                            className="btn btn-outline-secondary px-2 fw-bold"
+                                                                            style={{ borderRadius: '8px 0 0 8px', borderColor: '#CBD5E1' }}
+                                                                            onClick={() => setData('sdm_laki', Math.max(0, (parseInt(data.sdm_laki) || 0) - 1))}
+                                                                            disabled={isLocked}
+                                                                            title="Kurangi"
+                                                                        >
+                                                                            <i className="fas fa-minus"></i>
+                                                                        </button>
+                                                                    )}
+                                                                    <input
+                                                                        type="text"
+                                                                        className="form-control text-center fw-bold bg-white"
+                                                                        value={data.sdm_laki}
+                                                                        onChange={e => setData('sdm_laki', e.target.value.replace(/\D/g, ''))}
+                                                                        disabled={isLocked}
+                                                                        placeholder="0"
+                                                                        style={{ fontSize: '1.05rem', borderColor: '#CBD5E1', color: '#0F172A', borderRadius: isLocked ? '8px' : undefined }}
+                                                                    />
+                                                                    {!isLocked && (
+                                                                        <button
+                                                                            type="button"
+                                                                            className="btn btn-outline-secondary px-2 fw-bold"
+                                                                            style={{ borderRadius: '0 8px 8px 0', borderColor: '#CBD5E1' }}
+                                                                            onClick={() => setData('sdm_laki', (parseInt(data.sdm_laki) || 0) + 1)}
+                                                                            disabled={isLocked}
+                                                                            title="Tambah"
+                                                                        >
+                                                                            <i className="fas fa-plus"></i>
+                                                                        </button>
+                                                                    )}
+                                                                </div>
+                                                                <div className="badge bg-light text-secondary border px-2 py-1 fw-normal" style={{ fontSize: '0.75rem' }}>
+                                                                    <i className="fas fa-user me-1 text-primary"></i> <strong>{data.sdm_laki || 0}</strong> Orang
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* SDM Perempuan */}
+                                                        <div className="col-md-4">
+                                                            <div className={`p-3 bg-white rounded-3 shadow-sm border text-center ${revisiFields.includes('sdm_perempuan') ? 'border-2 border-danger' : ''}`} style={{ borderColor: '#E2E8F0' }}>
+                                                                <div className="d-flex align-items-center justify-content-center gap-2 mb-2">
+                                                                    <div className="rounded-circle d-flex align-items-center justify-content-center" style={{ width: '34px', height: '34px', background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' }}>
+                                                                        <i className="fas fa-female fs-5"></i>
+                                                                    </div>
+                                                                    <label className="fw-bold text-dark mb-0 small">Perempuan {renderInputBadge('sdm_perempuan')}</label>
+                                                                </div>
+                                                                <div className="input-group input-group-sm mb-2" style={{ maxWidth: '170px', margin: '0 auto' }}>
+                                                                    {!isLocked && (
+                                                                        <button
+                                                                            type="button"
+                                                                            className="btn btn-outline-secondary px-2 fw-bold"
+                                                                            style={{ borderRadius: '8px 0 0 8px', borderColor: '#CBD5E1' }}
+                                                                            onClick={() => setData('sdm_perempuan', Math.max(0, (parseInt(data.sdm_perempuan) || 0) - 1))}
+                                                                            disabled={isLocked}
+                                                                            title="Kurangi"
+                                                                        >
+                                                                            <i className="fas fa-minus"></i>
+                                                                        </button>
+                                                                    )}
+                                                                    <input
+                                                                        type="text"
+                                                                        className="form-control text-center fw-bold bg-white"
+                                                                        value={data.sdm_perempuan}
+                                                                        onChange={e => setData('sdm_perempuan', e.target.value.replace(/\D/g, ''))}
+                                                                        disabled={isLocked}
+                                                                        placeholder="0"
+                                                                        style={{ fontSize: '1.05rem', borderColor: '#CBD5E1', color: '#0F172A', borderRadius: isLocked ? '8px' : undefined }}
+                                                                    />
+                                                                    {!isLocked && (
+                                                                        <button
+                                                                            type="button"
+                                                                            className="btn btn-outline-secondary px-2 fw-bold"
+                                                                            style={{ borderRadius: '0 8px 8px 0', borderColor: '#CBD5E1' }}
+                                                                            onClick={() => setData('sdm_perempuan', (parseInt(data.sdm_perempuan) || 0) + 1)}
+                                                                            disabled={isLocked}
+                                                                            title="Tambah"
+                                                                        >
+                                                                            <i className="fas fa-plus"></i>
+                                                                        </button>
+                                                                    )}
+                                                                </div>
+                                                                <div className="badge bg-light text-secondary border px-2 py-1 fw-normal" style={{ fontSize: '0.75rem' }}>
+                                                                    <i className="fas fa-user me-1 text-danger"></i> <strong>{data.sdm_perempuan || 0}</strong> Orang
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* SDM TKA */}
+                                                        <div className="col-md-4">
+                                                            <div className={`p-3 bg-white rounded-3 shadow-sm border text-center ${revisiFields.includes('sdm_tka') ? 'border-2 border-danger' : ''}`} style={{ borderColor: '#E2E8F0' }}>
+                                                                <div className="d-flex align-items-center justify-content-center gap-2 mb-2">
+                                                                    <div className="rounded-circle d-flex align-items-center justify-content-center" style={{ width: '34px', height: '34px', background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}>
+                                                                        <i className="fas fa-globe-asia fs-5"></i>
+                                                                    </div>
+                                                                    <label className="fw-bold text-dark mb-0 small">TKA {renderInputBadge('sdm_tka')}</label>
+                                                                </div>
+                                                                <div className="input-group input-group-sm mb-2" style={{ maxWidth: '170px', margin: '0 auto' }}>
+                                                                    {!isLocked && (
+                                                                        <button
+                                                                            type="button"
+                                                                            className="btn btn-outline-secondary px-2 fw-bold"
+                                                                            style={{ borderRadius: '8px 0 0 8px', borderColor: '#CBD5E1' }}
+                                                                            onClick={() => setData('sdm_tka', Math.max(0, (parseInt(data.sdm_tka) || 0) - 1))}
+                                                                            disabled={isLocked}
+                                                                            title="Kurangi"
+                                                                        >
+                                                                            <i className="fas fa-minus"></i>
+                                                                        </button>
+                                                                    )}
+                                                                    <input
+                                                                        type="text"
+                                                                        className="form-control text-center fw-bold bg-white"
+                                                                        value={data.sdm_tka}
+                                                                        onChange={e => setData('sdm_tka', e.target.value.replace(/\D/g, ''))}
+                                                                        disabled={isLocked}
+                                                                        placeholder="0"
+                                                                        style={{ fontSize: '1.05rem', borderColor: '#CBD5E1', color: '#0F172A', borderRadius: isLocked ? '8px' : undefined }}
+                                                                    />
+                                                                    {!isLocked && (
+                                                                        <button
+                                                                            type="button"
+                                                                            className="btn btn-outline-secondary px-2 fw-bold"
+                                                                            style={{ borderRadius: '0 8px 8px 0', borderColor: '#CBD5E1' }}
+                                                                            onClick={() => setData('sdm_tka', (parseInt(data.sdm_tka) || 0) + 1)}
+                                                                            disabled={isLocked}
+                                                                            title="Tambah"
+                                                                        >
+                                                                            <i className="fas fa-plus"></i>
+                                                                        </button>
+                                                                    )}
+                                                                </div>
+                                                                <div className="badge bg-light text-secondary border px-2 py-1 fw-normal" style={{ fontSize: '0.75rem' }}>
+                                                                    <i className="fas fa-globe me-1 text-success"></i> <strong>{data.sdm_tka || 0}</strong> Orang
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
                             )}
 
                             {/* BAGIAN 4 */}
                             {!isSectionHidden('bagian4') && (
                                 <div className="gform-card">
-                                <div className="gform-card-header">
-                                    <h4 className="gform-section-title">Bagian 4: Persyaratan Umum</h4>
-                                </div>
-                                <div className="gform-body">
-                                    <div className="row gx-3 gy-2">
-                                        {renderFileField('file_7', 'Dokumen Administrasi', '.pdf', 'PDF (.pdf)')}
-                                        {renderFileField('file_8', 'Dokumen Lokasi', '.pdf', 'PDF (.pdf)')}
-                                        {renderFileField('file_9', 'Dokumen Bangunan', '.pdf', 'PDF (.pdf)')}
-                                        {renderFileField('file_10', 'Dokumen Sarana & Prasarana', '.pdf', 'PDF (.pdf)')}
-                                        {renderFileField('file_11', 'Dokumen SDM (STR, KTP, SIPA, dll)', '.pdf', 'PDF (.pdf)')}
+                                    <div className="gform-card-header">
+                                        <h4 className="gform-section-title">Bagian 4: Persyaratan Umum</h4>
+                                    </div>
+                                    <div className="gform-body">
+                                        <div className="row gx-3 gy-2 row-cols-1 row-cols-md-5">
+                                            {renderFileField('file_7', 'Dokumen Administrasi', '.pdf', 'PDF (.pdf)', 'col d-flex flex-column')}
+                                            {renderFileField('file_8', 'Dokumen Lokasi', '.pdf', 'PDF (.pdf)', 'col d-flex flex-column')}
+                                            {renderFileField('file_9', 'Dokumen Bangunan', '.pdf', 'PDF (.pdf)', 'col d-flex flex-column')}
+                                            {renderFileField('file_10', 'Dokumen Sarana & Prasarana', '.pdf', 'PDF (.pdf)', 'col d-flex flex-column')}
+                                            {renderFileField('file_11', 'Dokumen SDM (STR, KTP, SIPA, dll)', '.pdf', 'PDF (.pdf)', 'col d-flex flex-column')}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
                             )}
 
                             {/* BAGIAN TAMBAHAN */}
@@ -795,9 +801,9 @@ export default function ShowEdit({ perizinan }) {
                                     <div className="gform-body">
                                         <div className="mb-4">
                                             <label className="form-label-custom fs-6">Keterangan / Catatan Tambahan (Opsional)</label>
-                                            <textarea style={{ resize: "none" }} className="form-control border-secondary-subtle mt-auto" rows="2" value={data.keterangan} onChange={e => setData('keterangan', e.target.value)} disabled={isLocked}></textarea>
+                                            <textarea style={{ resize: "none" }} className="form-control border-secondary-subtle" rows="2" value={data.keterangan} onChange={e => setData('keterangan', e.target.value)} disabled={isLocked}></textarea>
                                         </div>
-                                        <div className="d-flex flex-column flex-md-row gap-3 justify-content-end align-items-center bg-light p-3 rounded border">
+                                        <div className="d-flex flex-column flex-md-row gap-3 justify-content-end align-items-center mt-3 pt-3 border-top">
                                             <button type="submit" className="btn btn-draft-gform w-100" style={{ maxWidth: '250px' }} onClick={() => setActionType('draft')} disabled={processing}>
                                                 <i className="fas fa-save me-2"></i> Simpan Draft
                                             </button>
@@ -814,77 +820,81 @@ export default function ShowEdit({ perizinan }) {
                     {/* FORM BAP (BERITA ACARA PEMERIKSAAN) */}
                     {!isSectionHidden('bap') && (
                         <div className="gform-card mt-4 mb-5">
-                        <div className="gform-card-header">
-                            <h5 className="gform-section-title"><i className="fas fa-file-signature me-2" style={{ color: 'var(--kfa-orange)' }}></i>Berita Acara Pemeriksaan (BAP)</h5>
-                            <p className="gform-section-desc">Unggah dokumen BAP dari Dinas Kesehatan (Wajib tapi boleh menyusul).</p>
-                        </div>
+                            <div className="gform-card-header">
+                                <h5 className="gform-section-title"><i className="fas fa-file-signature me-2" style={{ color: 'var(--kfa-orange)' }}></i>Berita Acara Pemeriksaan (BAP)</h5>
+                                <p className="gform-section-desc">Unggah dokumen BAP dari Dinas Kesehatan (Wajib tapi boleh menyusul).</p>
+                            </div>
 
-                        <form onSubmit={handleBapSubmit}>
-                            <div className="gform-body">
-                                <div className="row gx-3 gy-2 mb-2">
-                                    <div className="col-md-6">
-                                        <label className="form-label-custom text-dark mb-1">
-                                            <i className="fas fa-paperclip text-secondary me-2"></i> Dokumen BAP <span className="text-danger">*</span> <span className="text-muted fw-normal" style={{fontSize: '0.85rem'}}>(Wajib tapi boleh menyusul)</span>
-                                        </label>
-                                        <div>
+                            <form onSubmit={handleBapSubmit}>
+                                <div className="gform-body">
+                                    <div className="row align-items-start bg-light rounded p-4 mx-0 mb-3 border border-secondary-subtle">
+                                        <div className="col-md-7 border-md-end border-secondary-subtle pe-md-4 mb-4 mb-md-0">
+                                            <h6 className="fw-bold text-dark mb-2"><i className="fas fa-info-circle text-primary me-2"></i>Informasi Dokumen BAP</h6>
+                                            <p className="text-muted small mb-0" style={{ lineHeight: '1.6' }}>
+                                                Dokumen Berita Acara Pemeriksaan (BAP) diterbitkan oleh Dinas Kesehatan setempat setelah dilakukan pemeriksaan parameter persyaratan di apotek. <br /><br />
+                                                Dokumen ini <strong>wajib</strong> diunggah sebagai syarat operasional, namun <strong>dapat disusulkan</strong> tanpa menghambat proses pengajuan data utama lainnya.
+                                            </p>
+                                        </div>
+                                        <div className="col-md-5 ps-md-4">
+                                            <label className="form-label-custom text-dark mb-2" style={{ fontSize: "0.85rem" }}>
+                                                <i className="fas fa-paperclip text-secondary me-2"></i> Unggah File BAP&nbsp;<span className="text-danger">*</span>
+                                            </label>
                                             {(() => {
                                                 const isRevisiBap = statusDokumen['16'] === 'revisi';
                                                 return (
-                                                    <div className={`file-drop-box ${data['file_16'] ? 'has-file' : ''}`} style={{
-                                                        borderColor: isRevisiBap ? '#dc3545' : '',
-                                                        backgroundColor: isRevisiBap ? '#fff8f8' : ''
-                                                    }}>
-                                                        {isRevisiBap && <div className="badge bg-danger px-3 py-2" style={{ position: 'absolute', top: 0, right: 0, fontSize: '13px', zIndex: 10, borderRadius: '0 8px 0 8px' }}><i className="fas fa-times-circle me-1"></i> WAJIB DIREVISI</div>}
-                                                        <input type="file" className="form-control bg-white shadow-sm mb-2" onChange={handleBapFileChange} accept=".pdf" required={!perizinan.file_16} />
-                                                        <small className="text-muted d-block mt-1">Format: Khusus PDF (.pdf) - Maks. 5 MB</small>
-                                                    </div>
+                                                    <DragDropInput
+                                                        id="file_16"
+                                                        accept=".pdf"
+                                                        onChange={handleBapFileChange}
+                                                        fileData={perizinan.file_16 || data.file_16}
+                                                        formatText="Format: PDF - Maks. 5 MB"
+                                                        error={pageErrors.file_16}
+                                                        isRevisi={isRevisiBap}
+                                                    />
                                                 );
                                             })()}
+
+                                            {perizinan.file_16 && (
+                                                (() => {
+                                                    const isRevisiBap = statusDokumen['16'] === 'revisi';
+                                                    if (isRevisiBap) {
+                                                        return (
+                                                            <div className="mt-3 p-2 rounded bg-white border-start border-danger border-4 shadow-sm">
+                                                                <div className="d-flex justify-content-between align-items-center mb-1">
+                                                                    <span className="badge bg-danger"><i className="fas fa-exclamation-circle"></i> Butuh Revisi</span>
+                                                                    <div>
+                                                                        <a href={`/storage/${perizinan.file_16.replace('public/', '')}`} target="_blank" className="text-danger small text-decoration-underline"><i className="fas fa-history"></i> Lihat File Lama</a>
+                                                                    </div>
+                                                                </div>
+                                                                <p className="mb-0 text-danger" style={{ fontSize: '0.8rem' }}><i className="fas fa-info-circle"></i> {catatanDokumen['16'] || 'Tidak ada catatan.'}</p>
+                                                            </div>
+                                                        );
+                                                    } else {
+                                                        return (
+                                                            <div className="mt-3 p-2 rounded bg-white border-start border-success border-4 shadow-sm">
+                                                                <div className="d-flex justify-content-between align-items-center mb-1">
+                                                                    <span className="badge bg-success"><i className="fas fa-check-circle"></i> File Tersimpan</span>
+                                                                    <div>
+                                                                        <a href={`/storage/${perizinan.file_16.replace('public/', '')}`} target="_blank" className="text-primary small text-decoration-none"><i className="fas fa-eye"></i> Lihat Dokumen BAP</a>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    }
+                                                })()
+                                            )}
                                         </div>
-                                        {perizinan.file_16 && (
-                                            (() => {
-                                                const isRevisiBap = statusDokumen['16'] === 'revisi';
-                                                if (isRevisiBap) {
-                                                    return (
-                                                        <div className="mt-2 p-2 rounded bg-light border-start border-danger border-4 shadow-sm">
-                                                            <div className="d-flex justify-content-between align-items-center mb-1">
-                                                                <span className="badge bg-danger"><i className="fas fa-exclamation-circle"></i> Butuh Revisi</span>
-                                                                <div>
-                                                                    <a href={`/storage/${perizinan.file_16.replace('public/', '')}`} target="_blank" className="text-danger small text-decoration-underline"><i className="fas fa-history"></i> Lihat File Lama</a>
-                                                                </div>
-                                                            </div>
-                                                            <p className="mb-0 text-danger" style={{ fontSize: '0.8rem' }}><i className="fas fa-info-circle"></i> {catatanDokumen['16'] || 'Tidak ada catatan.'}</p>
-                                                        </div>
-                                                    );
-                                                } else {
-                                                    return (
-                                                        <div className="mt-2 p-2 rounded bg-light border-start border-success border-4 shadow-sm">
-                                                            <div className="d-flex justify-content-between align-items-center mb-1">
-                                                                <span className="badge bg-success"><i className="fas fa-check-circle"></i> File Tersimpan</span>
-                                                                <div>
-                                                                    <a href={`/storage/${perizinan.file_16.replace('public/', '')}`} target="_blank" className="text-primary small text-decoration-none"><i className="fas fa-eye"></i> Lihat Dokumen BAP</a>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    );
-                                                }
-                                            })()
+                                    </div>
+
+                                    <div className="d-flex flex-column flex-md-row justify-content-end align-items-center pt-2 mt-2 border-top">
+                                        {(!perizinan.file_16 || statusDokumen['16'] === 'revisi') && (
+                                            <button type="submit" className="btn btn-submit-gform text-nowrap shadow-sm px-5 py-2" style={{ fontSize: '1rem' }} disabled={processingBap}>
+                                                <i className="fas fa-upload me-2"></i> {processingBap ? 'MENGUNGGAH...' : 'SUBMIT BAP'}
+                                            </button>
                                         )}
                                     </div>
                                 </div>
-
-                                <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 pt-3 mt-3 border-top">
-                                    <div className="text-center text-md-start">
-                                        <small className="text-muted d-block"><i className="fas fa-info-circle text-primary me-1"></i> BAP dapat disusulkan tanpa harus mengubah data pengajuan lainnya.</small>
-                                    </div>
-                                    {(!perizinan.file_16 || statusDokumen['16'] === 'revisi') && (
-                                        <button type="submit" className="btn btn-submit-gform text-nowrap shadow-sm" disabled={processingBap}>
-                                            <i className="fas fa-upload me-2"></i> {processingBap ? 'MENGUNGGAH...' : 'SUBMIT BAP'}
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-                        </form>
+                            </form>
                         </div>
                     )}
                 </div>
@@ -892,3 +902,7 @@ export default function ShowEdit({ perizinan }) {
         </CabangLayout>
     );
 }
+
+
+
+

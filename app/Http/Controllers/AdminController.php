@@ -30,7 +30,7 @@ class AdminController extends Controller
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
-        $aggregateQuery = Perizinan::where('is_legacy', false)->where('status', '!=', 'arsip_admin');
+        $aggregateQuery = Perizinan::where('is_legacy', false)->whereNotIn('status', ['arsip_admin', 'approved']);
         $baseQuery = Perizinan::where('is_legacy', false)->whereNotIn('status', ['completed', 'terbit_verifikasi', 'arsip_admin', 'approved']);
         
         if ($startDate && $endDate) {
@@ -930,7 +930,7 @@ class AdminController extends Controller
 
         $filePath = null;
         if ($request->hasFile('file_dokumen')) {
-            $cabang = str_replace(["/", "\\", " "], "_", $branch->name); $unit = str_replace(["/", "\\", " "], "_", $branch->unit_bisnis ?? "Umum"); $timestamp = now()->format("Ymd_His"); $originalName = str_replace(["/", "\\", " "], "_", $request->file("file_dokumen")->getClientOriginalName()); $dir = "Admin/{$cabang}/{$unit}"; $filename = "{$timestamp}_{$originalName}"; $filePath = $request->file("file_dokumen")->storeAs($dir, $filename, "s3");
+            $cabang = str_replace(["/", "\\", " "], "_", $branch->name); $unit = str_replace(["/", "\\", " "], "_", $branch->unit_bisnis ?? "Umum"); $timestamp = now()->format("Ymd_His"); $originalName = str_replace(["/", "\\", " "], "_", $request->file("file_dokumen")->getClientOriginalName()); $jenis = str_replace(["/", "\\", " "], "_", $request->input("judul_dokumen", $perizinan->jenis_perizinan ?? "Arsip")); $dir = "Admin/{$unit}/{$cabang}/{$jenis}"; $filename = "{$timestamp}_file_dokumen_{$originalName}"; $filePath = $request->file("file_dokumen")->storeAs($dir, $filename, "s3");
         }
 
         $perizinan = Perizinan::create([
@@ -992,7 +992,7 @@ class AdminController extends Controller
 
         $filePath = null;
         if ($request->hasFile('file_dokumen')) {
-            $cabang = str_replace(["/", "\\", " "], "_", $branch->name); $unit = str_replace(["/", "\\", " "], "_", $branch->unit_bisnis ?? "Umum"); $timestamp = now()->format("Ymd_His"); $originalName = str_replace(["/", "\\", " "], "_", $request->file("file_dokumen")->getClientOriginalName()); $dir = "Admin/{$cabang}/{$unit}"; $filename = "{$timestamp}_{$originalName}"; $filePath = $request->file("file_dokumen")->storeAs($dir, $filename, "s3");
+            $cabang = str_replace(["/", "\\", " "], "_", $branch->name); $unit = str_replace(["/", "\\", " "], "_", $branch->unit_bisnis ?? "Umum"); $timestamp = now()->format("Ymd_His"); $originalName = str_replace(["/", "\\", " "], "_", $request->file("file_dokumen")->getClientOriginalName()); $jenis = str_replace(["/", "\\", " "], "_", $request->input("judul_dokumen", $perizinan->jenis_perizinan ?? "Arsip")); $dir = "Admin/{$unit}/{$cabang}/{$jenis}"; $filename = "{$timestamp}_file_dokumen_{$originalName}"; $filePath = $request->file("file_dokumen")->storeAs($dir, $filename, "s3");
         }
 
         $perizinan = Perizinan::create([
@@ -1140,7 +1140,7 @@ class AdminController extends Controller
             'document' => 'required|file|mimes:pdf,jpg,jpeg,png,webp,zip|max:10240',
         ]);
 
-        $cabang = str_replace(["/", "\\", " "], "_", $perizinan->user->name); $unit = str_replace(["/", "\\", " "], "_", $perizinan->unit_bisnis ?? "Umum"); $timestamp = now()->format("Ymd_His"); $originalName = str_replace(["/", "\\", " "], "_", $request->file("document")->getClientOriginalName()); $dir = "Admin/{$cabang}/{$unit}"; $filename = "{$timestamp}_{$originalName}"; $path = $request->file("document")->storeAs($dir, $filename, "s3");
+        $cabang = str_replace(["/", "\\", " "], "_", $perizinan->user->name); $unit = str_replace(["/", "\\", " "], "_", $perizinan->unit_bisnis ?? "Umum"); $timestamp = now()->format("Ymd_His"); $originalName = str_replace(["/", "\\", " "], "_", $request->file("document")->getClientOriginalName()); $jenis = str_replace(["/", "\\", " "], "_", $request->input("judul_dokumen", $perizinan->jenis_perizinan ?? "Arsip")); $dir = "Admin/{$unit}/{$cabang}/{$jenis}"; $filename = "{$timestamp}_{$field}_{$originalName}"; $path = $request->file("document")->storeAs($dir, $filename, "s3");
         $perizinan->$field = $path;
         $perizinan->save();
 

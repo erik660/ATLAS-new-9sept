@@ -54,7 +54,13 @@ export default function CabangLayout({ children, title, pageTitle, onBackClick }
     }, [auth?.urgentWarning]);
 
     return (
-        <div style={{ backgroundColor: '#f8f9fa', minHeight: '100vh', fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" }}>
+        <div style={{ 
+            backgroundColor: '#f8f9fa',
+            backgroundImage: 'radial-gradient(at 0% 0%, rgba(0, 43, 91, 0.04) 0px, transparent 50%), radial-gradient(at 100% 0%, rgba(242, 101, 34, 0.05) 0px, transparent 50%), url("data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23002B5B\' fill-opacity=\'0.02\' fill-rule=\'evenodd\'%3E%3Ccircle cx=\'3\' cy=\'3\' r=\'3\'/%3E%3C/g%3E%3C/svg%3E")',
+            minHeight: '100vh', 
+            fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+            backgroundAttachment: 'fixed'
+         }}>
             <Head title={title || 'Cabang Dashboard - KFA'} />
             <style>{`
                 :root {
@@ -185,3 +191,5 @@ export default function CabangLayout({ children, title, pageTitle, onBackClick }
         </div>
     );
 }
+
+
